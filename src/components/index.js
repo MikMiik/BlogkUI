@@ -30,6 +30,7 @@ export { default as TopicHeader } from "./TopicHeader/TopicHeader";
 // Routing
 export { default as AppRoutes } from "./AppRoutes";
 export { default as ScrollToTop } from "./ScrollToTop/ScrollToTop";
+export { default as ProtectedRoute } from "./ProtectedRoute/ProtectedRoute";
 
 // Blog Detail Components
 export { default as BlogContent } from "./BlogContent/BlogContent";

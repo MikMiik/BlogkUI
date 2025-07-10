@@ -3,8 +3,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const getCurrentUser = createAsyncThunk("auth/getCurrentUser", async () => {
   const res = await authService.me();
-
-  if (res.status === "success") {
+  console.log(res);
+  if (res.success) {
     return res.data;
   } else {
     console.error(res?.message);
@@ -20,7 +20,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    // builder là 1 function
+      // builder là 1 function
       .addCase(getCurrentUser.pending, (state) => {
         state.isLoading = true;
       })

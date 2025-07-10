@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Link,
+  Navigate,
   useLocation,
   useNavigate,
   useSearchParams,
@@ -10,9 +11,12 @@ import styles from "./Login.module.scss";
 import * as yup from "yup";
 import loginSchema from "@/schemas/loginSchema";
 import { login } from "@/services/authService";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "@/features/auth/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [params] = useSearchParams();
   const location = useLocation();
   const [formData, setFormData] = useState({
@@ -22,6 +26,12 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const currentUser = useSelector((state) => state.auth.currentUser);
+
+  if (currentUser) {
+    return <Navigate to={params.get("continue") || "/"} />;
+  }
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -54,9 +64,9 @@ const Login = () => {
           setErrors({});
           localStorage.setItem("token", res.data.accessToken);
           localStorage.setItem("refreshToken", res.data.refreshToken || "");
+          dispatch(getCurrentUser());
           navigate(params.get("continue") || "/");
         }
-        console.log(res);
       }
     } catch (err) {
       if (err instanceof yup.ValidationError) {
