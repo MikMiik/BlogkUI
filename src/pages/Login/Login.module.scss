@@ -32,6 +32,17 @@
     }
 }
 
+.loginSuccess {
+    @include body-base;
+    color: $success-600;
+    margin: 0;
+    line-height: $leading-relaxed;
+
+    @include mobile-only {
+        font-size: $text-sm;
+    }
+}
+
 .form {
     display: flex;
     flex-direction: column;
