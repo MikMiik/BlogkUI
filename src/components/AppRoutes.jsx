@@ -5,7 +5,7 @@ import FullscreenLayout from "../layouts/FullscreenLayout/FullscreenLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import Loading from "./Loading/Loading";
 import ErrorBoundary from "./ErrorBoundary/ErrorBoundary";
-import { ProtectedRoute } from ".";
+// import { ProtectedRoute } from ".";
 
 // Lazy load pages for better performance
 const Home = lazy(() => import("../pages/Home/Home"));
@@ -42,14 +42,7 @@ const AppRoutes = () => {
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Home />} />
 
-            <Route
-              path="topics"
-              element={
-                <ProtectedRoute>
-                  <TopicsListing />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="topics" element={<TopicsListing />} />
             <Route path="topics/:slug" element={<Topic />} />
             <Route path="blog/:slug" element={<BlogDetail />} />
             <Route path="profile/:username" element={<Profile />} />

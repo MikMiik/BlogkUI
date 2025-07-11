@@ -10,8 +10,8 @@ export const login = async (loginInfo) => {
   return res;
 };
 
-export const logout = async () => {
-  const res = await httpRequest.post("/auth/logout");
+export const logout = async (data) => {
+  const res = await httpRequest.post("/auth/logout", data);
   return res;
 };
 

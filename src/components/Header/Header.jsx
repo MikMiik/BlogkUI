@@ -6,6 +6,7 @@ import FallbackImage from "../FallbackImage/FallbackImage";
 import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 import styles from "./Header.module.scss";
 import { useSelector } from "react-redux";
+import { logout } from "@/services/authService";
 
 const Header = () => {
   // Mock authentication state - trong thực tế sẽ từ context/store
@@ -87,6 +88,14 @@ const Header = () => {
   }, []);
 
   const handleLogout = () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
+      logout({ refreshToken });
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+    } else {
+      localStorage.removeItem("token");
+    }
     setUser(null);
     setIsDropdownOpen(false);
     setIsNotificationOpen(false);
