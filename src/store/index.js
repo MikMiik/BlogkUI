@@ -12,7 +12,7 @@ import { topicsAPI } from "@/features/topicsAPI";
 const rootConfig = {
   key: "root",
   storage,
-  blacklist: ["postsApi", "topicsAPI"],
+  blacklist: ["topicsAPI"],
   // whitelist
 };
 

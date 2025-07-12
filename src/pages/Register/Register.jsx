@@ -38,7 +38,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    console.log(formData);
     try {
       const validatedData = await registerSchema.validate(formData, {
         abortEarly: false,

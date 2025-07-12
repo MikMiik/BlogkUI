@@ -63,7 +63,7 @@ const TopicList = ({ topics = [], loading = false, className, ...props }) => {
               {/* Post Count */}
               <div className={styles.meta}>
                 <Badge variant="secondary" size="sm">
-                  {topic.postCount || 0} posts
+                  {topic.postsCount || 0} posts
                 </Badge>
               </div>
             </div>
@@ -82,7 +82,7 @@ TopicList.propTypes = {
       slug: PropTypes.string.isRequired,
       description: PropTypes.string,
       icon: PropTypes.string,
-      postCount: PropTypes.number,
+      postsCount: PropTypes.number,
     })
   ),
   loading: PropTypes.bool,

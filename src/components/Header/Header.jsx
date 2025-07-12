@@ -5,12 +5,13 @@ import Button from "../Button/Button";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 import styles from "./Header.module.scss";
-import { useSelector } from "react-redux";
-import { logout } from "@/services/authService";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/features/auth/authSlice";
 
 const Header = () => {
   // Mock authentication state - trong thực tế sẽ từ context/store
   const currentUser = useSelector((state) => state.auth.currentUser);
+  const dispatch = useDispatch();
   const [user, setUser] = useState(currentUser);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -93,8 +94,10 @@ const Header = () => {
       logout({ refreshToken });
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
+      dispatch(logout());
     } else {
       localStorage.removeItem("token");
+      dispatch(logout());
     }
     setUser(null);
     setIsDropdownOpen(false);

@@ -59,7 +59,7 @@ const Login = () => {
       if (validatedData) {
         const res = await login(formData);
         if (!res.success) {
-          setErrors({ submit: "Login failed. Please try again." });
+          setErrors({ submit: res.message });
         } else {
           setErrors({});
           localStorage.setItem("token", res.data.accessToken);

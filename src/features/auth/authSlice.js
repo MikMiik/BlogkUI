@@ -18,6 +18,11 @@ const authSlice = createSlice({
     currentUser: null,
     isLoading: false,
   },
+  reducers: {
+    logout(state) {
+      state.currentUser = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // builder là 1 function
@@ -36,3 +41,4 @@ const authSlice = createSlice({
 
 export { getCurrentUser };
 export default authSlice.reducer;
+export const { logout } = authSlice.actions;

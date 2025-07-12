@@ -38,6 +38,8 @@
 }
 
 .topicBadge {
+    display: flex;
+    gap: 10px;
     margin-bottom: $spacing-4;
 }
 

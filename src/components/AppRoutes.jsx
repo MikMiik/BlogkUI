@@ -5,6 +5,7 @@ import FullscreenLayout from "../layouts/FullscreenLayout/FullscreenLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import Loading from "./Loading/Loading";
 import ErrorBoundary from "./ErrorBoundary/ErrorBoundary";
+
 // import { ProtectedRoute } from ".";
 
 // Lazy load pages for better performance
@@ -14,6 +15,9 @@ const TopicsListing = lazy(() =>
   import("../pages/TopicsListing/TopicsListing")
 );
 const BlogDetail = lazy(() => import("../pages/BlogDetail/BlogDetail"));
+const VerifiedEmail = lazy(() =>
+  import("../pages/VerifiedEmail/VerifiedEmail")
+);
 const Profile = lazy(() => import("../pages/Profile/Profile"));
 const EditProfile = lazy(() => import("../pages/EditProfile/EditProfile"));
 const MyPosts = lazy(() => import("../pages/MyPosts/MyPosts"));
@@ -41,7 +45,7 @@ const AppRoutes = () => {
           {/* App Layout Routes */}
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Home />} />
-
+            <Route path="verified" element={<VerifiedEmail />}></Route>
             <Route path="topics" element={<TopicsListing />} />
             <Route path="topics/:slug" element={<Topic />} />
             <Route path="blog/:slug" element={<BlogDetail />} />
