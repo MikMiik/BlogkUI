@@ -53,14 +53,17 @@ const Login = () => {
   }, [token, dispatch]);
 
   useEffect(() => {
-    if (!token) {
+    const localToken = localStorage.getItem("token");
+    if (!token && localToken) {
       dispatch(getCurrentUser());
     }
   }, [dispatch, token]);
 
   const currentUser = useSelector((state) => state.auth.currentUser);
 
-  if (currentUser || isTokenValid === true) {
+  if ((currentUser && localStorage.getItem("token")) || isTokenValid === true) {
+    console.log(currentUser);
+    console.log(isTokenValid);
     return <Navigate to={params.get("continue") || "/"} />;
   }
 

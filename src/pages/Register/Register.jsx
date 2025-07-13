@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Input, Button } from "../../components";
+import { Input, Button } from "@/components";
 import styles from "./Register.module.scss";
 import * as yup from "yup";
-import registerSchema from "../../schemas/registerSchema";
+import registerSchema from "@/schemas/registerSchema";
 import { register } from "@/services/authService";
 
 const Register = () => {
@@ -45,7 +45,7 @@ const Register = () => {
       if (validatedData) {
         const response = await register(formData, { withCredentials: true });
         console.log(response);
-        // Navigate to login or welcome page
+
         navigate("/login", {
           replace: true,
           state: {

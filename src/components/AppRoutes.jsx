@@ -1,41 +1,33 @@
 import { Routes, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
 import AppLayout from "../layouts/AppLayout/AppLayout";
 import FullscreenLayout from "../layouts/FullscreenLayout/FullscreenLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import Loading from "./Loading/Loading";
 import ErrorBoundary from "./ErrorBoundary/ErrorBoundary";
+import { lazyLoad } from "@/utils/lazyLoad";
 
 // import { ProtectedRoute } from ".";
 
 // Lazy load pages for better performance
-const Home = lazy(() => import("../pages/Home/Home"));
-const Topic = lazy(() => import("../pages/Topic/Topic"));
-const TopicsListing = lazy(() =>
-  import("../pages/TopicsListing/TopicsListing")
-);
-const BlogDetail = lazy(() => import("../pages/BlogDetail/BlogDetail"));
-const VerifiedEmail = lazy(() =>
-  import("../pages/VerifiedEmail/VerifiedEmail")
-);
-const Profile = lazy(() => import("../pages/Profile/Profile"));
-const EditProfile = lazy(() => import("../pages/EditProfile/EditProfile"));
-const MyPosts = lazy(() => import("../pages/MyPosts/MyPosts"));
-const WritePost = lazy(() => import("../pages/WritePost/WritePost"));
-const Bookmarks = lazy(() => import("../pages/Bookmarks/Bookmarks"));
-const DirectMessages = lazy(() =>
-  import("../pages/DirectMessages/DirectMessages")
-);
-const Settings = lazy(() => import("../pages/Settings/Settings"));
-const Login = lazy(() => import("../pages/Login/Login"));
-const Register = lazy(() => import("../pages/Register/Register"));
-const ForgotPassword = lazy(() =>
-  import("../pages/ForgotPassword/ForgotPassword")
-);
-const ResetPassword = lazy(() =>
-  import("../pages/ResetPassword/ResetPassword")
-);
-const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
+// const Home = lazy(() => import("../pages/Home/Home"));
+const Home = lazyLoad("../pages/Home/Home");
+const Topic = lazyLoad("../pages/Topic/Topic");
+const TopicsListing = lazyLoad("../pages/TopicsListing/TopicsListing");
+const BlogDetail = lazyLoad("../pages/BlogDetail/BlogDetail");
+const VerifiedEmail = lazyLoad("../pages/VerifiedEmail/VerifiedEmail");
+const Profile = lazyLoad("../pages/Profile/Profile");
+const EditProfile = lazyLoad("../pages/EditProfile/EditProfile");
+const MyPosts = lazyLoad("../pages/MyPosts/MyPosts");
+const WritePost = lazyLoad("../pages/WritePost/WritePost");
+const Bookmarks = lazyLoad("../pages/Bookmarks/Bookmarks");
+const DirectMessages = lazyLoad("../pages/DirectMessages/DirectMessages");
+const Settings = lazyLoad("../pages/Settings/Settings");
+const Login = lazyLoad("../pages/Login/Login");
+const Register = lazyLoad("../pages/Register/Register");
+const ForgotPassword = lazyLoad("../pages/ForgotPassword/ForgotPassword");
+const ResetPassword = lazyLoad("../pages/ResetPassword/ResetPassword");
+const NotFound = lazyLoad("../pages/NotFound/NotFound");
 
 const AppRoutes = () => {
   return (
