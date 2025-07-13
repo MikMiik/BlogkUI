@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/features/auth/authSlice";
 
 const Header = () => {
-  // Mock authentication state - trong thực tế sẽ từ context/store
   const currentUser = useSelector((state) => state.auth.currentUser);
   const dispatch = useDispatch();
   const [user, setUser] = useState(currentUser);

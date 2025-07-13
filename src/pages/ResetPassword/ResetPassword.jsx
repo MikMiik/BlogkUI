@@ -2,67 +2,44 @@ import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Input, Button } from "../../components";
 import styles from "./ResetPassword.module.scss";
+import * as yup from "yup";
+import resetPasswordSchema from "@/schemas/resetPasswordSchema";
+import { resetPassword, verifyResetToken } from "@/services/authService";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const [userId, setUserId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
-    // Validate token on component mount
-    const validateToken = async () => {
-      if (!token) {
-        setIsTokenValid(false);
-        return;
-      }
-
+    const verifyToken = async () => {
       try {
-        // Simulate API call to validate token
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // Mock token validation (in real app, this would be an API call)
-        const isValid = token.length > 10; // Simple mock validation
-        setIsTokenValid(isValid);
-      } catch (error) {
-        console.error("Token validation failed:", error);
-        setIsTokenValid(false);
+        const res = await verifyResetToken(token);
+        if (res.success) {
+          setIsTokenValid(true);
+          setUserId(res.data.userId);
+        } else {
+          setIsTokenValid(false);
+        }
+      } catch (err) {
+        setIsTokenValid(null);
       }
     };
 
-    validateToken();
+    if (token) {
+      verifyToken();
+    } else {
+      setIsTokenValid(false);
+    }
   }, [token]);
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number";
-    }
-
-    // Confirm password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -83,24 +60,27 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Mock successful password reset
-      console.log("Password reset successful");
-      setIsSubmitted(true);
-    } catch (error) {
-      console.error("Password reset failed:", error);
-      setErrors({
-        submit: "Failed to reset password. Please try again.",
+      const validatedData = await resetPasswordSchema.validate(formData, {
+        abortEarly: false,
       });
+      if (validatedData) {
+        const response = await resetPassword({ userId, ...formData });
+        if (response.success) {
+          setIsSubmitted(true);
+        }
+      }
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        err.inner.forEach((error) => {
+          setErrors((prev) => ({
+            ...prev,
+            [error.path]: error.message,
+          }));
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -128,7 +108,6 @@ const ResetPassword = () => {
   };
 
   const passwordStrength = getPasswordStrength();
-
   // Loading state while validating token
   if (isTokenValid === null) {
     return (

@@ -26,6 +26,26 @@ export const checkInfo = async (type, value) => {
   return res.data.exists;
 };
 
+export const resetPassword = async (data) => {
+  const res = await httpRequest.post("/auth/reset-password", data);
+  return res;
+};
+
+export const verifyResetToken = async (token) => {
+  const res = await httpRequest.get(`/auth/verify-reset-token?token=${token}`);
+  return res;
+};
+
+export const verifyEmailToken = async (token) => {
+  const res = await httpRequest.get(`/auth/verify-email?token=${token}`);
+  return res;
+};
+
+export const sendForgotEmail = async (data) => {
+  const res = await httpRequest.post("/auth/forgot-password", data);
+  return res;
+};
+
 export default {
   me,
   login,

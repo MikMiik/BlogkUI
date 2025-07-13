@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   Navigate,
@@ -10,7 +10,7 @@ import { Input, Button } from "../../components";
 import styles from "./Login.module.scss";
 import * as yup from "yup";
 import loginSchema from "@/schemas/loginSchema";
-import { login } from "@/services/authService";
+import { login, verifyEmailToken } from "@/services/authService";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "@/features/auth/authSlice";
 
@@ -26,10 +26,41 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isTokenValid, setIsTokenValid] = useState(null);
+  const token = searchParams.get("token");
+
+  useEffect(() => {
+    if (!token) return;
+    const verifyToken = async () => {
+      try {
+        const res = await verifyEmailToken(token);
+        console.log(res);
+        if (res.success) {
+          setIsTokenValid(true);
+          localStorage.setItem("token", res.data.accessToken);
+          dispatch(getCurrentUser());
+        } else {
+          setIsTokenValid(false);
+        }
+      } catch (err) {
+        console.error(err);
+        setIsTokenValid(null);
+      }
+    };
+
+    verifyToken();
+  }, [token, dispatch]);
+
+  useEffect(() => {
+    if (!token) {
+      dispatch(getCurrentUser());
+    }
+  }, [dispatch, token]);
 
   const currentUser = useSelector((state) => state.auth.currentUser);
 
-  if (currentUser) {
+  if (currentUser || isTokenValid === true) {
     return <Navigate to={params.get("continue") || "/"} />;
   }
 
