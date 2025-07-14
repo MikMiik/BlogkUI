@@ -30,8 +30,11 @@ jobs:
             git pull origin ${{ secrets.MAIN_BRANCH }}
             npm install
             npm run build
-
-          EOF
+      - name: 📦 Deploy to Nginx folder
+        run: |
+          sudo rm -rf /var/www/blogk.online/html/*
+          sudo cp -r ${{ secrets.FE_DIR }}/dist/* /var/www/blogk.online/html/
+        EOF
 
       - name: 🧹 Cleanup SSH
         run: rm -rf ~/.ssh
