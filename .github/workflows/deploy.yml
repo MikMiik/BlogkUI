@@ -31,13 +31,6 @@ jobs:
             npm install
             npm run build
 
-            echo "📥 Pulling Backend..."
-            cd ${{ secrets.BE_DIR }}
-            git pull origin ${{ secrets.MAIN_BRANCH }}
-            npm install
-
-            echo "🔁 Restarting PM2..."
-            pm2 restart all
           EOF
 
       - name: 🧹 Cleanup SSH
