@@ -1,30 +1,28 @@
-name: 🚀 Deploy React Frontend to VPS
+name: 🚀 Auto Deploy FE to VPS
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
-  deploy-fe:
+  deploy:
+    name: Deploy Frontend to VPS
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📁 Setup SSH
+      - name: ⤵️ Setup SSH key and config
         run: |
           mkdir -p ~/.ssh
-          install -m 600 -D /dev/null ~/.ssh/github-actions
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/github-actions
 
-          # SSH config để dùng đúng key
-          echo "Host github.com" >> ~/.ssh/config
-          echo "  HostName github.com" >> ~/.ssh/config
-          echo "  User git" >> ~/.ssh/config
+          echo "Host ${{ secrets.SSH_HOST }}" >> ~/.ssh/config
+          echo "  HostName ${{ secrets.SSH_HOST }}" >> ~/.ssh/config
+          echo "  User ${{ secrets.SSH_USER }}" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/github-actions" >> ~/.ssh/config
-          echo "  IdentitiesOnly yes" >> ~/.ssh/config
           echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: 🚀 Deploy via SSH
         run: |
@@ -36,17 +34,19 @@ jobs:
             git clean -fd
             git pull origin ${{ secrets.MAIN_BRANCH }}
 
-            echo "📦 Install dependencies and build..."
+            echo "📦 Build FE..."
             npm install
             npm run build
 
-            echo "📂 Deploy dist/ to Nginx directory..."
+            echo "🧹 Clean old HTML..."
             sudo rm -rf /var/www/blogk.online/html/*
-            sudo cp -r ${{ secrets.FE_DIR }}/dist/* /var/www/blogk.online/html/
 
-            echo "✅ Deployment completed."
+            echo "📂 Copy new build to Nginx directory..."
+            sudo cp -r dist/* /var/www/blogk.online/html/
+
+            echo "✅ DONE."
           EOF
 
-      - name: 🧹 Clean up SSH
+      - name: 🧹 Cleanup
         run: rm -rf ~/.ssh
-        
+
