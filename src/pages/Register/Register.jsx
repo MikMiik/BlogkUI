@@ -43,14 +43,12 @@ const Register = () => {
         abortEarly: false,
       });
       if (validatedData) {
-        const response = await register(formData, { withCredentials: true });
-        console.log(response);
+        const { data } = await register(formData, { withCredentials: true });
 
         navigate("/login", {
           replace: true,
           state: {
-            message:
-              "Registration successful! Please verify your email and sign in.",
+            message: data.message,
           },
         });
       }

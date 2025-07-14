@@ -62,8 +62,6 @@ const Login = () => {
   const currentUser = useSelector((state) => state.auth.currentUser);
 
   if ((currentUser && localStorage.getItem("token")) || isTokenValid === true) {
-    console.log(currentUser);
-    console.log(isTokenValid);
     return <Navigate to={params.get("continue") || "/"} />;
   }
 

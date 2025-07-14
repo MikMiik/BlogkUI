@@ -40,8 +40,8 @@ const ForgotPassword = () => {
         abortEarly: false,
       });
       if (validatedData) {
-        const res = await sendForgotEmail(formData);
-        setMessage(res.data);
+        const { data } = await sendForgotEmail(formData);
+        setMessage(data.message);
         setIsSubmitted(true);
       }
     } catch (err) {
@@ -96,7 +96,9 @@ const ForgotPassword = () => {
           <h1 className={styles.successTitle}>Check Your Email</h1>
           <p className={styles.successDescription}>
             {/* If that email exists, a reset link has been sent{" "} */}
-            {message} <strong>{formData.email}</strong>
+            {message}
+            <br />
+            <strong>{formData.email}</strong>
           </p>
           <div className={styles.emailInstructions}>
             <p>

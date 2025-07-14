@@ -90,6 +90,7 @@ const request = async (method, url, data, config) => {
       data,
       ...config,
     });
+    console.log(res.data);
     return res.data;
   } catch (error) {
     console.error(error);

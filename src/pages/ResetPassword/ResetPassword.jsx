@@ -14,7 +14,6 @@ const ResetPassword = () => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [userId, setUserId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -25,7 +24,6 @@ const ResetPassword = () => {
         const res = await verifyResetToken(token);
         if (res.success) {
           setIsTokenValid(true);
-          setUserId(res.data.userId);
         } else {
           setIsTokenValid(false);
         }
@@ -67,9 +65,11 @@ const ResetPassword = () => {
         abortEarly: false,
       });
       if (validatedData) {
-        const response = await resetPassword({ userId, ...formData });
+        const response = await resetPassword(formData, token);
         if (response.success) {
           setIsSubmitted(true);
+        } else {
+          setIsSubmitted(false);
         }
       }
     } catch (err) {

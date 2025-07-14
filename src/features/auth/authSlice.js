@@ -3,7 +3,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const getCurrentUser = createAsyncThunk("auth/getCurrentUser", async () => {
   const res = await authService.me();
-  console.log(res);
   if (res.success) {
     return res.data;
   } else {
@@ -19,8 +18,9 @@ const authSlice = createSlice({
     isLoading: false,
   },
   reducers: {
-    logout(state) {
+    removeCurrentUser(state) {
       state.currentUser = null;
+      state.isLoading = false;
     },
   },
   extraReducers: (builder) => {
@@ -41,4 +41,4 @@ const authSlice = createSlice({
 
 export { getCurrentUser };
 export default authSlice.reducer;
-export const { logout } = authSlice.actions;
+export const { removeCurrentUser } = authSlice.actions;

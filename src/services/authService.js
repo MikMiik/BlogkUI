@@ -26,8 +26,11 @@ export const checkInfo = async (type, value) => {
   return res.data.exists;
 };
 
-export const resetPassword = async (data) => {
-  const res = await httpRequest.post("/auth/reset-password", data);
+export const resetPassword = async (data, token) => {
+  const res = await httpRequest.post(
+    `/auth/reset-password?token=${token}`,
+    data
+  );
   return res;
 };
 

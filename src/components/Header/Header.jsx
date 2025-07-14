@@ -6,12 +6,12 @@ import FallbackImage from "../FallbackImage/FallbackImage";
 import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 import styles from "./Header.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "@/features/auth/authSlice";
+import { logout } from "@/services/authService";
+import { removeCurrentUser } from "@/features/auth/authSlice";
 
 const Header = () => {
   const currentUser = useSelector((state) => state.auth.currentUser);
   const dispatch = useDispatch();
-  const [user, setUser] = useState(currentUser);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -87,25 +87,24 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
     if (refreshToken) {
-      logout({ refreshToken });
+      await logout({ refreshToken });
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
-      dispatch(logout());
+      dispatch(removeCurrentUser());
     } else {
       localStorage.removeItem("token");
-      dispatch(logout());
+      dispatch(removeCurrentUser());
     }
-    setUser(null);
     setIsDropdownOpen(false);
     setIsNotificationOpen(false);
   };
 
   const handleNotificationToggle = () => {
     setIsNotificationOpen(!isNotificationOpen);
-    setIsDropdownOpen(false); // Close user dropdown if open
+    setIsDropdownOpen(false);
   };
 
   const handleMarkAsRead = async (notificationId) => {
@@ -147,7 +146,7 @@ const Header = () => {
 
           {/* Auth Actions */}
           <div className={styles.actions}>
-            {user ? (
+            {currentUser ? (
               <>
                 {/* Notifications */}
                 <div ref={notificationRef}>
@@ -170,11 +169,11 @@ const Header = () => {
                     aria-haspopup="true"
                   >
                     <FallbackImage
-                      src={user?.avatar}
-                      alt={user?.name}
+                      src={currentUser?.avatar}
+                      alt={currentUser?.name}
                       className={styles.userAvatar}
                     />
-                    <span className={styles.userName}>{user?.name}</span>
+                    <span className={styles.userName}>{currentUser?.name}</span>
                     <svg
                       className={`${styles.chevron} ${
                         isDropdownOpen ? styles.chevronOpen : ""
@@ -199,19 +198,19 @@ const Header = () => {
                       <div className={styles.dropdownHeader}>
                         <div className={styles.dropdownUserInfo}>
                           <div className={styles.dropdownUserName}>
-                            {user?.name}
+                            {currentUser?.name}
                           </div>
                           <div className={styles.dropdownUserEmail}>
-                            {user?.email}
+                            {currentUser?.email}
                           </div>
                           <div className={styles.dropdownUserRole}>
-                            {user?.role}
+                            {currentUser?.role}
                           </div>
                         </div>
                       </div>
                       <nav className={styles.dropdownNav}>
                         <Link
-                          to={`/profile/${user?.username || "john-doe"}`}
+                          to={`/profile/${currentUser?.username || "john-doe"}`}
                           className={styles.dropdownItem}
                         >
                           <svg
@@ -334,7 +333,7 @@ const Header = () => {
         {isMobileMenuOpen && (
           <div className={styles.mobileMenu}>
             <Navigation />
-            {!user ? (
+            {!currentUser ? (
               <div className={styles.mobileAuth}>
                 <Button variant="ghost" size="md" fullWidth asChild>
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
@@ -354,18 +353,22 @@ const Header = () => {
               <div className={styles.mobileUserMenu}>
                 <div className={styles.mobileUserInfo}>
                   <FallbackImage
-                    src={user?.avatar}
-                    alt={user?.name}
+                    src={currentUser?.avatar}
+                    alt={currentUser?.name}
                     className={styles.mobileUserAvatar}
                   />
                   <div>
-                    <div className={styles.mobileUserName}>{user?.name}</div>
-                    <div className={styles.mobileUserEmail}>{user?.email}</div>
+                    <div className={styles.mobileUserName}>
+                      {currentUser?.name}
+                    </div>
+                    <div className={styles.mobileUserEmail}>
+                      {currentUser?.email}
+                    </div>
                   </div>
                 </div>
                 <nav className={styles.mobileUserNav}>
                   <Link
-                    to={`/profile/${user?.username || "john-doe"}`}
+                    to={`/profile/${currentUser?.username || "john-doe"}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Profile
