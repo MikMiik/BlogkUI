@@ -1,0 +1,44 @@
+name: 🚀 Auto Deploy FE & BE to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 🔧 SSH Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📁 Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          install -m 600 -D /dev/null ~/.ssh/github-actions
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+          echo "Host ${{ secrets.SSH_HOST }}" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/github-actions" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+      - name: 🚀 SSH Pull & Deploy
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "📥 Pulling Frontend..."
+            cd ${{ secrets.FE_DIR }}
+            git pull origin ${{ secrets.MAIN_BRANCH }}
+            npm install
+            npm run build
+
+            echo "📥 Pulling Backend..."
+            cd ${{ secrets.BE_DIR }}
+            git pull origin ${{ secrets.MAIN_BRANCH }}
+            npm install
+
+            echo "🔁 Restarting PM2..."
+            pm2 restart all
+          EOF
+
+      - name: 🧹 Cleanup SSH
+        run: rm -rf ~/.ssh
