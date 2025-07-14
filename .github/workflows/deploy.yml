@@ -1,4 +1,4 @@
-name: 🚀 Auto Deploy FE & BE to VPS
+name: 🚀 Deploy React Frontend to VPS
 
 on:
   push:
@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: 🔧 SSH Deploy to VPS
+  deploy-fe:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,22 +18,35 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
 
-          echo "Host ${{ secrets.SSH_HOST }}" >> ~/.ssh/config
+          # SSH config để dùng đúng key
+          echo "Host github.com" >> ~/.ssh/config
+          echo "  HostName github.com" >> ~/.ssh/config
+          echo "  User git" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/github-actions" >> ~/.ssh/config
+          echo "  IdentitiesOnly yes" >> ~/.ssh/config
           echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-      - name: 🚀 SSH Pull & Deploy
+
+      - name: 🚀 Deploy via SSH
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            echo "📥 Pulling Frontend..."
+            set -e
+            echo "📥 Pull latest code..."
             cd ${{ secrets.FE_DIR }}
+            git reset --hard HEAD
+            git clean -fd
             git pull origin ${{ secrets.MAIN_BRANCH }}
+
+            echo "📦 Install dependencies and build..."
             npm install
             npm run build
-      - name: 📦 Deploy to Nginx folder
-        run: |
-          sudo rm -rf /var/www/blogk.online/html/*
-          sudo cp -r ${{ secrets.FE_DIR }}/dist/* /var/www/blogk.online/html/
-        EOF
 
-      - name: 🧹 Cleanup SSH
+            echo "📂 Deploy dist/ to Nginx directory..."
+            sudo rm -rf /var/www/blogk.online/html/*
+            sudo cp -r ${{ secrets.FE_DIR }}/dist/* /var/www/blogk.online/html/
+
+            echo "✅ Deployment completed."
+          EOF
+
+      - name: 🧹 Clean up SSH
         run: rm -rf ~/.ssh
+        
