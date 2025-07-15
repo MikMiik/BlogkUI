@@ -45,6 +45,10 @@ const PostCard = ({
       day: "numeric",
     });
   };
+  const sanitizedExcerpt =
+    typeof excerpt === "string"
+      ? excerpt.replace(/<h1([^>]*)>/g, "<p$1>").replace(/<\/h1>/g, "</p>")
+      : excerpt;
 
   const handleLike = async () => {
     if (!onLike || likingInProgress) return;
@@ -150,7 +154,18 @@ const PostCard = ({
         </h3>
 
         {/* Excerpt */}
-        {excerpt && <p className={styles.excerpt}>{excerpt}</p>}
+        {excerpt && (
+          <p className={styles.excerpt}>
+            {typeof excerpt === "string" ? (
+              <div
+                className={styles.excerpt}
+                dangerouslySetInnerHTML={{ __html: sanitizedExcerpt }}
+              />
+            ) : (
+              sanitizedExcerpt
+            )}
+          </p>
+        )}
 
         {/* Meta Information */}
         <div className={styles.meta}>

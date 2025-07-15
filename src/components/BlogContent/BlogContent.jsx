@@ -13,7 +13,7 @@ const BlogContent = ({
   readTime,
   topics,
   tags = [],
-  featuredImage,
+  thumbnail,
   loading = false,
   className,
   ...props
@@ -52,11 +52,11 @@ const BlogContent = ({
   return (
     <article className={`${styles.blogContent} ${className || ""}`} {...props}>
       {/* Featured Image */}
-      {featuredImage && (
+      {thumbnail && (
         <div className={styles.imageContainer}>
           <FallbackImage
-            src={featuredImage}
-            alt={title}
+            src={thumbnail}
+            alt={thumbnail}
             className={styles.featuredImage}
           />
         </div>
@@ -139,7 +139,7 @@ const BlogContent = ({
             <div className={styles.tagsList}>
               {tags.map((tag, index) => (
                 <Badge key={index} variant="secondary" size="sm">
-                  {tag}
+                  {tag.name}
                 </Badge>
               ))}
             </div>
@@ -161,8 +161,8 @@ BlogContent.propTypes = {
   updatedAt: PropTypes.string,
   readTime: PropTypes.number,
   topic: PropTypes.string,
-  tags: PropTypes.arrayOf(PropTypes.string),
-  featuredImage: PropTypes.string,
+  // tags: PropTypes.arrayOf(PropTypes.string),
+  // featuredImage: PropTypes.string,
   loading: PropTypes.bool,
   className: PropTypes.string,
 };
