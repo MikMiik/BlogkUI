@@ -5,6 +5,7 @@ const httpRequest = axios.create({
   headers: {
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
+  withCredentials: true,
 });
 // access token
 httpRequest.interceptors.request.use(
