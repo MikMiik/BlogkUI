@@ -19,8 +19,8 @@ const PostCard = ({
   compact = false,
   className,
   // New interaction props
-  likes = 2,
-  views = 1,
+  likesCount = 2,
+  viewsCount = 1,
   isLiked = false,
   isBookmarked = false,
   showViewCount = true,
@@ -32,7 +32,7 @@ const PostCard = ({
   const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
   const [optimisticBookmarked, setOptimisticBookmarked] =
     useState(isBookmarked);
-  const [optimisticLikes, setOptimisticLikes] = useState(likes);
+  const [optimisticLikes, setOptimisticLikes] = useState(likesCount);
   const [likingInProgress, setLikingInProgress] = useState(false);
   const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
 
@@ -155,7 +155,7 @@ const PostCard = ({
 
         {/* Excerpt */}
         {excerpt && (
-          <p className={styles.excerpt}>
+          <div className={styles.excerpt}>
             {typeof excerpt === "string" ? (
               <div
                 className={styles.excerpt}
@@ -164,7 +164,7 @@ const PostCard = ({
             ) : (
               sanitizedExcerpt
             )}
-          </p>
+          </div>
         )}
 
         {/* Meta Information */}
@@ -205,7 +205,7 @@ const PostCard = ({
           <div className={styles.interactions}>
             <div className={styles.stats}>
               {/* View Count */}
-              {showViewCount && views > 0 && (
+              {showViewCount && viewsCount > 0 && (
                 <span className={styles.stat}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
@@ -223,7 +223,7 @@ const PostCard = ({
                       strokeWidth="1.5"
                     />
                   </svg>
-                  {views}
+                  {viewsCount}
                 </span>
               )}
 
@@ -322,8 +322,8 @@ PostCard.propTypes = {
   compact: PropTypes.bool,
   className: PropTypes.string,
   // New interaction props
-  likes: PropTypes.number,
-  views: PropTypes.number,
+  // likes: PropTypes.number,
+  // views: PropTypes.number,
   isLiked: PropTypes.bool,
   isBookmarked: PropTypes.bool,
   showViewCount: PropTypes.bool,

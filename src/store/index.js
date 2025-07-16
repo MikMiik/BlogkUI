@@ -4,16 +4,15 @@ import storage from "redux-persist/lib/storage";
 import persistReducer from "redux-persist/es/persistReducer";
 
 import authReducer from "@/features/auth/authSlice";
-import { postsApi } from "@/features/posts/postsAPI";
 import persistStore from "redux-persist/es/persistStore";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { topicsAPI } from "@/features/topicsAPI";
+
 import { baseApi } from "@/features/baseApi";
 
 const rootConfig = {
   key: "root",
   storage,
-  blacklist: ["topicsAPI", "postsApi"],
+  blacklist: ["baseApi"],
   // whitelist
 };
 

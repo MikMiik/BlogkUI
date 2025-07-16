@@ -15,8 +15,6 @@ const BlogContent = ({
   tags = [],
   thumbnail,
   loading = false,
-  className,
-  ...props
 }) => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -29,10 +27,7 @@ const BlogContent = ({
 
   if (loading) {
     return (
-      <article
-        className={`${styles.blogContent} ${className || ""}`}
-        {...props}
-      >
+      <article className={`${styles.blogContent} `}>
         <div className={styles.skeleton}>
           <div className={styles.skeletonImage} />
           <div className={styles.skeletonHeader}>
@@ -50,7 +45,7 @@ const BlogContent = ({
   }
   const authorName = author.firstName + " " + author.lastName;
   return (
-    <article className={`${styles.blogContent} ${className || ""}`} {...props}>
+    <article className={`${styles.blogContent}`}>
       {/* Featured Image */}
       {thumbnail && (
         <div className={styles.imageContainer}>
