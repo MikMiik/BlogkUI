@@ -10,7 +10,6 @@ const getCurrentUser = createAsyncThunk(
     } else {
       return thunkAPI.rejectWithValue({
         message: res.message,
-        redirect: res.data?.redirect || "/login",
       });
     }
   }

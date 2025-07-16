@@ -43,14 +43,24 @@ const Register = () => {
         abortEarly: false,
       });
       if (validatedData) {
-        const { data } = await register(formData, { withCredentials: true });
-
-        navigate("/login", {
-          replace: true,
-          state: {
-            message: data.message,
-          },
-        });
+        const res = await register(formData, { withCredentials: true });
+        console.log(res);
+        if (!res.success) {
+          for (let path in res.message) {
+            setErrors((prev) => ({
+              ...prev,
+              [path]: res.message[path],
+            }));
+          }
+          console.log(errors);
+        } else {
+          navigate("/login", {
+            replace: true,
+            state: {
+              message: res.message,
+            },
+          });
+        }
       }
     } catch (err) {
       if (err instanceof yup.ValidationError) {

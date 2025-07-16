@@ -8,13 +8,7 @@ function UserProvider() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(getCurrentUser())
-      .unwrap()
-      .catch((err) => {
-        if (err?.redirect) {
-          navigate(err.redirect);
-        }
-      });
+    dispatch(getCurrentUser());
   }, [dispatch, navigate]);
 
   return null;
