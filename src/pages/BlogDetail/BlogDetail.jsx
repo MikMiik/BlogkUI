@@ -390,7 +390,7 @@ const BlogDetail = () => {
         {/* Comments */}
         <div className={styles.contentSection}>
           <CommentSection
-            comments={comments}
+            comments={post.comments}
             onAddComment={handleAddComment}
             onReplyComment={handleReplyComment}
             onLikeComment={handleLikeComment}

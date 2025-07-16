@@ -20,7 +20,12 @@ const CommentSection = ({
 }) => {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const rootComments = comments
+    .filter((comment) => comment.parentId === null)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || isSubmitting) return;
@@ -116,17 +121,18 @@ const CommentSection = ({
 
       {/* Comments List */}
       <div className={styles.commentsList}>
-        {comments.length === 0 ? (
+        {rootComments.length === 0 ? (
           <EmptyState
             icon="💬"
             title="No comments yet"
             description="Be the first to share your thoughts!"
           />
         ) : (
-          comments.map((comment) => (
+          rootComments.map((rootComment) => (
             <CommentItem
-              key={comment.id}
-              comment={comment}
+              key={rootComment.id}
+              comment={rootComment}
+              allComments={comments}
               onReply={isAuthenticated ? handleReply : undefined}
               onLike={isAuthenticated ? onLikeComment : undefined}
               onEdit={isAuthenticated ? onEditComment : undefined}
