@@ -1,8 +1,8 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "./baseApi";
 
-export const topicsAPI = createApi({
-  reducerPath: "topicsAPI",
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
+export const topicsAPI = baseApi.injectEndpoints({
+  // reducerPath: "topicsAPI",
+  // baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
   endpoints: (builder) => ({
     getAllTopics: builder.query({
       query: () => `topics`,

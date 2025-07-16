@@ -1,10 +1,10 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { postEndpoints } from "./postEndpoints";
 import { commentEndpoints } from "./commentEndpoints";
+import { baseApi } from "../baseApi";
 
-export const postsApi = createApi({
-  reducerPath: "postsApi",
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
+export const postsApi = baseApi.injectEndpoints({
+  // reducerPath: "postsApi",
+  // baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
   tagTypes: ["Post"],
   endpoints: (builder) => ({
     ...postEndpoints(builder),

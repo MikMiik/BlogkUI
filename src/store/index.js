@@ -8,6 +8,7 @@ import { postsApi } from "@/features/posts/postsAPI";
 import persistStore from "redux-persist/es/persistStore";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { topicsAPI } from "@/features/topicsAPI";
+import { baseApi } from "@/features/baseApi";
 
 const rootConfig = {
   key: "root",
@@ -18,8 +19,7 @@ const rootConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  [postsApi.reducerPath]: postsApi.reducer,
-  [topicsAPI.reducerPath]: topicsAPI.reducer,
+  [baseApi.reducerPath]: baseApi.reducer,
 });
 
 const store = configureStore({
@@ -27,8 +27,9 @@ const store = configureStore({
   // Kết hợp giữa cấu hình lưu trữ (config) và reducer chính (reducer) để tạo ra một reducer mới, có khả năng lưu state vào storage
   middleware: (getDefaultMiddleware) => [
     ...getDefaultMiddleware({ serializableCheck: false }),
-    postsApi.middleware,
-    topicsAPI.middleware,
+    baseApi.middleware,
+    // postsApi.middleware,
+    // topicsAPI.middleware,
     // ...getDefaultMiddleware trải mảng các middleware mặc định đc return từ getDefaultMiddleware
     // logger,
     // Thêm logger vào list middleware

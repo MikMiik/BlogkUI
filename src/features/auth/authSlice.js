@@ -1,15 +1,20 @@
 import authService from "@/services/authService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-const getCurrentUser = createAsyncThunk("auth/getCurrentUser", async () => {
-  const res = await authService.me();
-  if (res.success) {
-    return res.data;
-  } else {
-    console.error(res?.message);
-    return null;
+const getCurrentUser = createAsyncThunk(
+  "auth/getCurrentUser",
+  async (_, thunkAPI) => {
+    const res = await authService.me();
+    if (res.success) {
+      return res.data;
+    } else {
+      return thunkAPI.rejectWithValue({
+        message: res.message,
+        redirect: res.data?.redirect || "/login",
+      });
+    }
   }
-});
+);
 
 const authSlice = createSlice({
   name: "auth",
