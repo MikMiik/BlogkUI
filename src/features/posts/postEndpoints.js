@@ -4,9 +4,16 @@ export const postEndpoints = (builder) => ({
     transformResponse: (response) => response.data,
   }),
   getOnePost: builder.query({
-    query: (slug) => `posts/${slug}`,
+    query: (id) => `posts/${id}`,
     transformResponse: (response) => response.data,
     providesTags: (result) => (result ? [{ type: "Post", id: result.id }] : []),
+  }),
+  getComments: builder.query({
+    query: ({ postId, commentsPage, limitComments }) =>
+      `posts/${postId}/comments?commentsPage=${commentsPage}&limitComments=${limitComments}`,
+    transformResponse: (response) => response.data,
+    providesTags: (result, error, { postId }) =>
+      result ? [{ type: "Comment", postId }] : [],
   }),
   createPost: builder.mutation({
     query: (data) => ({

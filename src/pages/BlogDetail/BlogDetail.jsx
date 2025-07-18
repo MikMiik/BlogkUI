@@ -8,72 +8,13 @@ import {
   Loading,
 } from "../../components";
 import styles from "./BlogDetail.module.scss";
-import { useGetOnePostQuery } from "@/features/posts/postsAPI";
-
-const mockComments = [
-  {
-    id: 1,
-    author: {
-      name: "Alex Rodriguez",
-      avatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    },
-    content:
-      "Great article! I've been using React Hooks for a while now, and this guide really helps clarify some of the more advanced concepts. The useState examples are particularly helpful for beginners.",
-    createdAt: "2024-01-15T14:30:00Z",
-    likes: 12,
-    isLiked: false,
-    replies: [
-      {
-        id: 2,
-        author: {
-          name: "John Smith",
-          avatar:
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-        },
-        content:
-          "Thank you! I'm glad you found it helpful. I'll be writing more about advanced hook patterns soon.",
-        createdAt: "2024-01-15T15:45:00Z",
-        likes: 5,
-        isLiked: true,
-        replies: [],
-      },
-    ],
-  },
-  {
-    id: 3,
-    author: {
-      name: "Lisa Park",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-    },
-    content:
-      "Could you write a follow-up article about custom hooks? I'm still struggling with when and how to create them effectively.",
-    createdAt: "2024-01-15T16:20:00Z",
-    likes: 8,
-    isLiked: false,
-    replies: [],
-  },
-  {
-    id: 4,
-    author: {
-      name: "David Kim",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    },
-    content:
-      "The useEffect explanation is spot on. I wish I had this guide when I was first learning React Hooks. The best practices section is golden!",
-    createdAt: "2024-01-15T18:10:00Z",
-    likes: 15,
-    isLiked: true,
-    replies: [],
-  },
-];
+import { useGetOnePostQuery } from "@/features/posts/postsApi";
+import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const BlogDetail = () => {
   const { slug } = useParams();
-  const [comments, setComments] = useState([]);
-  const [isAuthenticated] = useState(true); // Mock authentication
+  const currentUser = useCurrentUser();
+  const isAuthenticated = Boolean(currentUser);
 
   // Like and bookmark states
   const [isLiked, setIsLiked] = useState(false);
@@ -109,56 +50,6 @@ const BlogDetail = () => {
   }
   if (isSuccessPost) {
     const { post, relatedPosts } = postData;
-    console.log(post);
-    const handleAddComment = async (content) => {
-      // // Simulate API call
-      // await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // const newComment = {
-      //   id: Date.now(),
-      //   author: {
-      //     name: "You",
-      //     avatar:
-      //       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face",
-      //   },
-      //   content,
-      //   createdAt: new Date().toISOString(),
-      //   likes: 0,
-      //   isLiked: false,
-      //   replies: [],
-      // };
-
-      // setComments((prev) => [newComment, ...prev]);
-      console.log("click addComment");
-    };
-
-    const handleReplyComment = async (parentId, content) => {
-      // // Simulate API call
-      // await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // const newReply = {
-      //   id: Date.now(),
-      //   author: {
-      //     name: "You",
-      //     avatar:
-      //       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face",
-      //   },
-      //   content,
-      //   createdAt: new Date().toISOString(),
-      //   likes: 0,
-      //   isLiked: false,
-      //   replies: [],
-      // };
-
-      // setComments((prev) =>
-      //   prev.map((comment) =>
-      //     comment.id === parentId
-      //       ? { ...comment, replies: [...comment.replies, newReply] }
-      //       : comment
-      //   )
-      // );
-      console.log("click reply");
-    };
 
     const handleLikeComment = async (commentId) => {
       // // Simulate API call
@@ -176,66 +67,6 @@ const BlogDetail = () => {
       //   )
       // );
       console.log("click like");
-    };
-
-    const handleEditComment = async (commentId, newContent) => {
-      // try {
-      //   // Simulate API call
-      //   await new Promise((resolve) => setTimeout(resolve, 500));
-
-      //   const updateCommentRecursively = (comments) => {
-      //     return comments.map((comment) => {
-      //       if (comment.id === commentId) {
-      //         return {
-      //           ...comment,
-      //           content: newContent,
-      //           isEdited: true,
-      //         };
-      //       }
-      //       if (comment.replies && comment.replies.length > 0) {
-      //         return {
-      //           ...comment,
-      //           replies: updateCommentRecursively(comment.replies),
-      //         };
-      //       }
-      //       return comment;
-      //     });
-      //   };
-
-      //   setComments((prev) => updateCommentRecursively(prev));
-      //   console.log("Comment edited:", commentId, newContent);
-      // } catch (error) {
-      //   console.error("Failed to edit comment:", error);
-      // }
-      console.log("click edit");
-    };
-
-    const handleDeleteComment = async (commentId) => {
-      // try {
-      //   // Simulate API call
-      //   await new Promise((resolve) => setTimeout(resolve, 500));
-
-      //   const deleteCommentRecursively = (comments) => {
-      //     return comments
-      //       .filter((comment) => comment.id !== commentId)
-      //       .map((comment) => {
-      //         if (comment.replies && comment.replies.length > 0) {
-      //           return {
-      //             ...comment,
-      //             replies: deleteCommentRecursively(comment.replies),
-      //           };
-      //         }
-      //         return comment;
-      //       });
-      //   };
-
-      //   setComments((prev) => deleteCommentRecursively(prev));
-
-      //   console.log("Comment deleted:", commentId);
-      // } catch (error) {
-      //   console.error("Failed to delete comment:", error);
-      // }
-      console.log("click delete");
     };
 
     const handleLikePost = async () => {
@@ -390,12 +221,8 @@ const BlogDetail = () => {
         {/* Comments */}
         <div className={styles.contentSection}>
           <CommentSection
-            comments={post.comments}
-            onAddComment={handleAddComment}
-            onReplyComment={handleReplyComment}
+            postId={post.id}
             onLikeComment={handleLikeComment}
-            onEditComment={handleEditComment}
-            onDeleteComment={handleDeleteComment}
             isAuthenticated={isAuthenticated}
           />
         </div>

@@ -176,3 +176,8 @@
   background-color: $bg-muted;
   border-radius: $radius-md;
 }
+
+.loadingContainer {
+    @include flex-center;
+    min-height: 400px;
+}

@@ -1,19 +1,23 @@
 import { useState, useRef, useEffect } from "react";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Button from "../Button/Button";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import styles from "./CommentItem.module.scss";
+import {
+  useCreateCommentMutation,
+  useDeleteCommentMutation,
+  useUpdateCommentMutation,
+} from "@/features/comments/commentsApi";
+import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const CommentItem = ({
   comment,
   allComments = [],
+  postId,
   level = 0,
-  maxLevel = 2,
-  onReply,
+  // maxLevel = 2,
   onLike,
-  onEdit,
-  onDelete,
   showActions = true,
   className,
   ...props
@@ -24,8 +28,15 @@ const CommentItem = ({
   const [editText, setEditText] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const dropdownRef = useRef(null);
+  const [createComment] = useCreateCommentMutation();
+  const [updateComment] = useUpdateCommentMutation();
+  const [deleteComment] = useDeleteCommentMutation();
+  const currentUser = useCurrentUser();
 
+  const onEdit = currentUser.id === comment.commenter.id;
+  const onDelete = currentUser.id === comment.commenter.id;
+
+  const dropdownRef = useRef(null);
   const {
     id,
     commenter,
@@ -36,12 +47,7 @@ const CommentItem = ({
     isEdited = false,
   } = comment;
   const commenterName = commenter.firstName + " " + commenter.lastName;
-  const replies = allComments
-    .filter((comment) => comment.parentId === id)
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+  const replies = allComments.filter((comment) => comment.parentId === id);
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -73,19 +79,25 @@ const CommentItem = ({
     });
   };
 
-  const handleReplySubmit = (e) => {
+  const handleReplySubmit = async (e) => {
     e.preventDefault();
-    if (replyText.trim() && onReply) {
-      onReply(id, replyText.trim());
+    if (replyText.trim()) {
+      await createComment({
+        userId: currentUser.id,
+        parentId: comment.id,
+        commentableType: "Post",
+        commentableId: postId,
+        content: replyText,
+      });
       setReplyText("");
       setShowReplyForm(false);
     }
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (editText.trim() && onEdit) {
-      onEdit(id, editText.trim());
+      await updateComment({ id, data: { content: editText } });
       setEditText("");
       setShowEditForm(false);
     }
@@ -108,9 +120,9 @@ const CommentItem = ({
     setShowEditForm(false);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (onDelete) {
-      onDelete(id);
+      await deleteComment(id);
     }
     setShowDeleteConfirm(false);
     setShowDropdown(false);
@@ -249,15 +261,15 @@ const CommentItem = ({
                 {likesCount > 0 && <span>{likesCount}</span>}
               </button>
 
-              {level < maxLevel && (
-                <button
-                  className={styles.replyButton}
-                  onClick={() => setShowReplyForm(!showReplyForm)}
-                  type="button"
-                >
-                  Reply
-                </button>
-              )}
+              {/* {level < maxLevel && ( */}
+              <button
+                className={styles.replyButton}
+                onClick={() => setShowReplyForm(!showReplyForm)}
+                type="button"
+              >
+                Reply
+              </button>
+              {/* )} */}
             </div>
           )}
 
@@ -362,12 +374,11 @@ const CommentItem = ({
             <CommentItem
               key={reply.id}
               comment={reply}
+              allComments={allComments}
+              postId={postId}
               level={level + 1}
-              maxLevel={maxLevel}
-              onReply={onReply}
+              // maxLevel={maxLevel}
               onLike={onLike}
-              onEdit={onEdit}
-              onDelete={onDelete}
               showActions={showActions}
             />
           ))}

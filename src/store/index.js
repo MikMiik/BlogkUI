@@ -12,7 +12,7 @@ import { baseApi } from "@/features/baseApi";
 const rootConfig = {
   key: "root",
   storage,
-  blacklist: ["baseApi"],
+  blacklist: ["api"],
   // whitelist
 };
 
