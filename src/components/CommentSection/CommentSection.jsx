@@ -120,7 +120,7 @@ const CommentSection = ({
       setIsSubmitting(true);
       try {
         createComment({
-          userId: currentUser.id,
+          userId: currentUser?.id,
           commentableType: "Post",
           commentableId: postId,
           content: newComment,

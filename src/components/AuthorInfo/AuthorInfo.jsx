@@ -34,8 +34,7 @@ const AuthorInfo = ({
   }
 
   const {
-    firstName,
-    lastName,
+    name,
     introduction,
     role,
     avatar,
@@ -44,7 +43,7 @@ const AuthorInfo = ({
     followersCount,
     followingCount,
   } = author;
-  const name = firstName + " " + lastName;
+
   return (
     <div className={`${styles.authorInfo} ${className || ""}`} {...props}>
       <div className={styles.header}>

@@ -45,7 +45,6 @@ const Topic = () => {
     );
   }
   if (isSuccessTopic) {
-    console.log(posts);
     const totalPages = Math.ceil(postsCount / limit);
     const handlePageChange = (page) => {
       setSearchParams({ page: page.toString() });

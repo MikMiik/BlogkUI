@@ -33,8 +33,8 @@ const CommentItem = ({
   const [deleteComment] = useDeleteCommentMutation({ postId });
   const currentUser = useCurrentUser();
 
-  const onEdit = currentUser.id === comment.commenter.id;
-  const onDelete = currentUser.id === comment.commenter.id;
+  const onEdit = currentUser?.id === comment.commenter.id;
+  const onDelete = currentUser?.id === comment.commenter.id;
 
   const dropdownRef = useRef(null);
   const {
@@ -83,7 +83,7 @@ const CommentItem = ({
     e.preventDefault();
     if (replyText.trim()) {
       await createComment({
-        userId: currentUser.id,
+        userId: currentUser?.id,
         parentId: comment.id,
         commentableType: "Post",
         commentableId: postId,

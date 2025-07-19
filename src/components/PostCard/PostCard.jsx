@@ -36,7 +36,6 @@ const PostCard = ({
   const [likingInProgress, setLikingInProgress] = useState(false);
   const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
 
-  const authorName = author.firstName + " " + author.lastName;
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -173,7 +172,7 @@ const PostCard = ({
             {author?.avatar && (
               <FallbackImage
                 src={author.avatar}
-                alt={authorName}
+                alt={author.name}
                 className={styles.authorAvatar}
                 lazy={true}
               />
@@ -181,11 +180,11 @@ const PostCard = ({
             <Link
               to={`/profile/${
                 author?.username ||
-                authorName?.toLowerCase().replace(/\s+/g, "-")
+                author.name?.toLowerCase().replace(/\s+/g, "-")
               }`}
-              className={styles.authorName}
+              className={styles.author.name}
             >
-              {authorName}
+              {author.name}
             </Link>
           </div>
 
