@@ -9,7 +9,8 @@ export const topicsAPI = baseApi.injectEndpoints({
       transformResponse: (response) => response.data,
     }),
     getOneTopic: builder.query({
-      query: (slug) => `topics/${slug}`,
+      query: ({ slug, currentPage, limit }) =>
+        `topics/${slug}?page=${currentPage}&limit=${limit}`,
       transformResponse: (response) => response.data,
     }),
     createTopic: builder.mutation({

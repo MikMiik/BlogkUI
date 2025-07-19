@@ -9,8 +9,9 @@ export const postEndpoints = (builder) => ({
     providesTags: (result) => (result ? [{ type: "Post", id: result.id }] : []),
   }),
   getComments: builder.query({
-    query: ({ postId, commentsPage, limitComments }) =>
-      `posts/${postId}/comments?commentsPage=${commentsPage}&limitComments=${limitComments}`,
+    query: ({ postId, limitComments }) =>
+      // `posts/${postId}/comments`,
+      `posts/${postId}/comments?limitComments=${limitComments}`,
     transformResponse: (response) => response.data,
     providesTags: (result, error, { postId }) =>
       result ? [{ type: "Comment", postId }] : [],

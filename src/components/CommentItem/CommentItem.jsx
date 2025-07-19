@@ -30,7 +30,7 @@ const CommentItem = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [createComment] = useCreateCommentMutation();
   const [updateComment] = useUpdateCommentMutation();
-  const [deleteComment] = useDeleteCommentMutation();
+  const [deleteComment] = useDeleteCommentMutation({ postId });
   const currentUser = useCurrentUser();
 
   const onEdit = currentUser.id === comment.commenter.id;
@@ -122,7 +122,7 @@ const CommentItem = ({
 
   const handleDeleteConfirm = async () => {
     if (onDelete) {
-      await deleteComment(id);
+      await deleteComment({ id, postId });
     }
     setShowDeleteConfirm(false);
     setShowDropdown(false);

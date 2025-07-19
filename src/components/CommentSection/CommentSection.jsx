@@ -35,16 +35,13 @@ const CommentSection = ({
 }) => {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [commentsPage, setCommentsPage] = useState(1);
+  const [limitComments, setLimitComments] = useState(10);
   const [hasMore, setHasMore] = useState(true);
-  const [allComments, setAllComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const { ref: observerRef, inView } = useInView({
     threshold: 1,
     rootMargin: "150px 0px 0px 0px",
   });
-
-  const limitComments = 10;
   const currentUser = useCurrentUser();
   const [createComment] = useCreateCommentMutation();
 
@@ -55,31 +52,33 @@ const CommentSection = ({
     isSuccess: isSuccessComments,
     isFetching,
   } = useGetCommentsQuery(
-    { postId, commentsPage, limitComments },
+    { postId, limitComments },
     {
       refetchOnMountOrArgChange: true,
     }
   );
 
   useEffect(() => {
-    if (isSuccessComments && commentsData && !isFetching) {
-      setAllComments((prev) =>
-        commentsPage === 1 ? commentsData : [...prev, ...commentsData]
-      );
+    if (isSuccessComments && commentsData && !isFetching && !isSubmitting) {
       setHasMore(commentsData.length === limitComments);
       setLoading(false);
     }
-  }, [isSuccessComments, commentsData, commentsPage, isFetching]);
+  }, [
+    isSuccessComments,
+    commentsData,
+    isFetching,
+    isSubmitting,
+    limitComments,
+  ]);
 
   useEffect(() => {
     if (inView && hasMore && !loading && !isLoadingComments) {
       setLoading(true);
-      setCommentsPage((prev) => prev + 1);
+      setLimitComments((prev) => prev + 10);
     }
   }, [inView, hasMore, loading, isLoadingComments]);
   useEffect(() => {
-    setCommentsPage(1);
-    setAllComments([]);
+    setLimitComments(10);
     setHasMore(true);
     setLoading(false);
   }, [postId]);
@@ -113,21 +112,19 @@ const CommentSection = ({
   }
 
   if (isSuccessComments) {
-    const rootComments = allComments.filter(
+    const rootComments = commentsData.filter(
       (comment) => comment.parentId === null
     );
     const handleSubmit = async (e) => {
       e.preventDefault();
       setIsSubmitting(true);
       try {
-        const newCommentData = await createComment({
+        createComment({
           userId: currentUser.id,
           commentableType: "Post",
           commentableId: postId,
           content: newComment,
-        }).unwrap();
-
-        setAllComments((prev) => [newCommentData, ...prev]);
+        });
         setNewComment("");
       } catch (error) {
         console.error("Failed to add comment:", error);
@@ -196,7 +193,7 @@ const CommentSection = ({
                     key={rootComment.id}
                     postId={postId}
                     comment={rootComment}
-                    allComments={allComments}
+                    allComments={commentsData}
                     onLike={isAuthenticated ? onLikeComment : undefined}
                     showActions={isAuthenticated}
                   />

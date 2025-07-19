@@ -6,7 +6,7 @@ export const commentEndpoints = (builder) => ({
       body: data,
     }),
     invalidatesTags: (result, error, { postId }) => [
-      { type: "Comment", id: postId },
+      { type: "Comment", postId },
     ],
   }),
   updateComment: builder.mutation({
@@ -16,16 +16,16 @@ export const commentEndpoints = (builder) => ({
       body: data,
     }),
     invalidatesTags: (result, error, { postId }) => [
-      { type: "Comment", id: postId },
+      { type: "Comment", postId },
     ],
   }),
   deleteComment: builder.mutation({
-    query: (id) => ({
+    query: ({ id }) => ({
       url: `comments/${id}`,
       method: "DELETE",
     }),
     invalidatesTags: (result, error, { postId }) => [
-      { type: "Comment", id: postId },
+      { type: "Comment", postId },
     ],
   }),
 });

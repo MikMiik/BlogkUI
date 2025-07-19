@@ -48,11 +48,11 @@ const PostList = ({
               author={post.author}
               publishedAt={post.publishedAt}
               readTime={post.readTime}
-              topic={post.topic}
+              topics={post.topics}
               slug={post.slug}
               featuredImage={post.thumbnail}
-              likes={post.viewsCount}
-              views={post.likesCount}
+              viewsCount={post.viewsCount}
+              likesCount={post.likesCount}
             />
           </div>
         ))}
