@@ -39,8 +39,7 @@ const PostCard = ({
     useState(isBookmarked);
   const [optimisticLikes, setOptimisticLikes] = useState(likesCount);
   const [likingInProgress, setLikingInProgress] = useState(false);
-  const [bookmarkingInProgress, setBookmarkingInProgress] =
-    useState(isBookmarked);
+  const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
 
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
