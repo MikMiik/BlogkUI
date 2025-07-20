@@ -51,8 +51,18 @@ const RelatedPosts = ({
         {displayPosts.map((post) => (
           <PostCard
             key={post.id}
+            postId={post.id}
+            title={post.title}
+            excerpt={post.excerpt}
+            author={post.author}
+            publishedAt={post.publishedAt}
+            readTime={post.readTime}
+            topics={post.topics}
+            slug={post.slug}
             featuredImage={post.thumbnail}
-            {...post}
+            isLiked={post.isLiked}
+            likesCount={post.likesCount}
+            viewsCount={post.viewsCount}
             compact
           />
         ))}

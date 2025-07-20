@@ -4,19 +4,20 @@ import { Link } from "react-router-dom";
 import Button from "../Button/Button";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import styles from "./CommentItem.module.scss";
-import {
-  useCreateCommentMutation,
-  useDeleteCommentMutation,
-  useUpdateCommentMutation,
-} from "@/features/comments/commentsApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
+import {
+  useLikeCommentMutation,
+  useUnlikeCommentMutation,
+} from "@/features/comments/commentsApi";
 
 const CommentItem = ({
   comment,
   allComments = [],
   postId,
   level = 0,
-  // maxLevel = 2,
+  onReply,
+  onDelete,
+  onEdit,
   onLike,
   showActions = true,
   className,
@@ -24,32 +25,30 @@ const CommentItem = ({
 }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [likesCount, setLikesCount] = useState(comment.likesCount);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editText, setEditText] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [createComment] = useCreateCommentMutation();
-  const [updateComment] = useUpdateCommentMutation();
-  const [deleteComment] = useDeleteCommentMutation({ postId });
+  const [likeComment] = useLikeCommentMutation();
+  const [unlikeComment] = useUnlikeCommentMutation();
   const currentUser = useCurrentUser();
 
-  const onEdit = currentUser?.id === comment.commenter.id;
-  const onDelete = currentUser?.id === comment.commenter.id;
+  const canEdit = currentUser?.id === comment.commenter.id;
+  const canDelete = currentUser?.id === comment.commenter.id;
 
   const dropdownRef = useRef(null);
   const {
     id,
     commenter,
     content,
-    likesCount = 0,
     isLiked = false,
-    // isEdited = false,
+    isEdited = false,
     createdAt,
-    updatedAt,
   } = comment;
+
   const replies = allComments.filter((comment) => comment.parentId === id);
-  const isEdited = updatedAt > createdAt;
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -82,14 +81,8 @@ const CommentItem = ({
 
   const handleReplySubmit = async (e) => {
     e.preventDefault();
-    if (replyText.trim()) {
-      await createComment({
-        userId: currentUser?.id,
-        parentId: comment.id,
-        commentableType: "Post",
-        commentableId: postId,
-        content: replyText,
-      });
+    if (replyText.trim() && onReply) {
+      onReply(id, replyText.trim());
       setReplyText("");
       setShowReplyForm(false);
     }
@@ -97,15 +90,22 @@ const CommentItem = ({
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    if (editText.trim() && onEdit) {
-      await updateComment({ id, data: { content: editText } });
+    if (editText.trim() && onEdit && canEdit) {
+      await onEdit(id, editText);
       setEditText("");
       setShowEditForm(false);
     }
   };
 
-  const handleLike = () => {
-    if (onLike) {
+  const handleLike = async () => {
+    if (onLike && isLiked) {
+      await unlikeComment({ commentId: id });
+      setLikesCount((prev) => (prev -= 1));
+      onLike(id);
+    }
+    if (onLike && !isLiked) {
+      await likeComment({ commentId: id });
+      setLikesCount((prev) => (prev += 1));
       onLike(id);
     }
   };
@@ -122,8 +122,8 @@ const CommentItem = ({
   };
 
   const handleDeleteConfirm = async () => {
-    if (onDelete) {
-      await deleteComment({ id, postId });
+    if (onDelete && canDelete) {
+      await onDelete(id);
     }
     setShowDeleteConfirm(false);
     setShowDropdown(false);
@@ -170,7 +170,7 @@ const CommentItem = ({
             </div>
 
             {/* Actions Dropdown - Only show if user can edit/delete */}
-            {showActions && (onEdit || onDelete) && (
+            {showActions && (canEdit || canDelete) && (
               <div className={styles.actionsDropdown} ref={dropdownRef}>
                 <button
                   className={styles.moreButton}
@@ -194,7 +194,7 @@ const CommentItem = ({
 
                 {showDropdown && (
                   <div className={styles.dropdown} role="menu">
-                    {onEdit && (
+                    {canEdit && (
                       <button
                         className={styles.dropdownItem}
                         onClick={handleEdit}
@@ -212,7 +212,7 @@ const CommentItem = ({
                         Edit
                       </button>
                     )}
-                    {onDelete && (
+                    {canDelete && (
                       <button
                         className={`${styles.dropdownItem} ${styles.deleteItem}`}
                         onClick={() => setShowDeleteConfirm(true)}
@@ -259,7 +259,7 @@ const CommentItem = ({
                 >
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
-                {likesCount > 0 && <span>{likesCount}</span>}
+                {likesCount >= 0 && <span>{likesCount}</span>}
               </button>
 
               {/* {level < maxLevel && ( */}
@@ -378,7 +378,9 @@ const CommentItem = ({
               allComments={allComments}
               postId={postId}
               level={level + 1}
-              // maxLevel={maxLevel}
+              onReply={onReply}
+              onEdit={onEdit}
+              onDelete={onDelete}
               onLike={onLike}
               showActions={showActions}
             />

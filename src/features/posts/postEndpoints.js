@@ -14,8 +14,8 @@ export const postEndpoints = (builder) => ({
       // `posts/${postId}/comments`,
       `posts/${postId}/comments?limitComments=${limitComments}`,
     transformResponse: (response) => response.data,
-    providesTags: (result, error, { postId }) =>
-      result ? [{ type: "Comment", postId }] : [],
+    // providesTags: (result, error, { postId }) =>
+    //   result ? [{ type: "Comment", postId }] : [],
   }),
   createPost: builder.mutation({
     query: (data) => ({
@@ -34,21 +34,23 @@ export const postEndpoints = (builder) => ({
     transformResponse: (response) => response.data,
   }),
   likePost: builder.mutation({
-    query: ({ postId, data }) => ({
+    query: ({ postId }) => ({
       url: `posts/${postId}/like`,
       method: "POST",
-      body: data,
+      body: {
+        postId,
+      },
     }),
-    transformResponse: (response) => response.data,
     invalidatesTags: ["Post"],
   }),
   unlikePost: builder.mutation({
-    query: ({ postId, data }) => ({
+    query: ({ postId }) => ({
       url: `posts/${postId}/unlike`,
       method: "DELETE",
-      body: data,
+      body: {
+        postId,
+      },
     }),
-    transformResponse: (response) => response.data,
     invalidatesTags: ["Post"],
   }),
 

@@ -11,4 +11,6 @@ export const {
   useCreateCommentMutation,
   useUpdateCommentMutation,
   useDeleteCommentMutation,
+  useLikeCommentMutation,
+  useUnlikeCommentMutation,
 } = commentsApi;

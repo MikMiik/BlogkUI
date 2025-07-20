@@ -27,7 +27,7 @@ const BlogDetail = () => {
   const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
 
   const {
-    data: { post, relatedPosts } = {},
+    data: { post, relatedPosts, comments, commentsCount } = {},
     isLoading: isLoadingPost,
     error: errorPost,
     isSuccess: isSuccessPost,
@@ -73,20 +73,10 @@ const BlogDetail = () => {
         if (isLiked) {
           await unlikePost({
             postId: post.id,
-            data: {
-              userId: currentUser.id,
-              likableType: "Post",
-              likableId: post.id,
-            },
           });
         } else {
           await likePost({
             postId: post.id,
-            data: {
-              userId: currentUser.id,
-              likableType: "Post",
-              likableId: post.id,
-            },
           });
         }
       } catch (error) {
@@ -224,7 +214,12 @@ const BlogDetail = () => {
 
         {/* Comments */}
         <div className={styles.contentSection}>
-          <CommentSection postId={post.id} isAuthenticated={isAuthenticated} />
+          <CommentSection
+            postId={post.id}
+            count={commentsCount}
+            commentsData={comments}
+            isAuthenticated={isAuthenticated}
+          />
         </div>
       </div>
     );

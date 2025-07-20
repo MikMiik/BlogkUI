@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // import PropTypes from "prop-types";
 import CommentItem from "../CommentItem/CommentItem";
 import Button from "../Button/Button";
 import EmptyState from "../EmptyState/EmptyState";
 import styles from "./CommentSection.module.scss";
 import { useCurrentUser } from "@/utils/useCurrentUser";
-import { useCreateCommentMutation } from "@/features/comments/commentsApi";
-import { useGetCommentsQuery } from "@/features/posts/postsApi";
-import { useInView } from "react-intersection-observer";
+import {
+  useCreateCommentMutation,
+  useDeleteCommentMutation,
+  useUpdateCommentMutation,
+} from "@/features/comments/commentsApi";
 import { Loading } from "..";
 
 // T1: commentsPage = 1
@@ -28,61 +30,24 @@ import { Loading } from "..";
 
 const CommentSection = ({
   postId,
-  onLikeComment,
+  commentsData,
+  count,
+  loading = false,
   isAuthenticated = false,
   className,
   ...props
 }) => {
   const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState(commentsData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [limitComments, setLimitComments] = useState(10);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const { ref: observerRef, inView } = useInView({
-    threshold: 1,
-    rootMargin: "150px 0px 0px 0px",
-  });
-  const currentUser = useCurrentUser();
+
   const [createComment] = useCreateCommentMutation();
+  const [updateComment] = useUpdateCommentMutation();
+  const [deleteComment] = useDeleteCommentMutation();
 
-  const {
-    data: { rows: commentsData = [], count = 0 } = {},
-    isLoading: isLoadingComments,
-    error: errorComments,
-    isSuccess: isSuccessComments,
-    isFetching,
-  } = useGetCommentsQuery(
-    { postId, limitComments },
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const currentUser = useCurrentUser();
 
-  useEffect(() => {
-    if (isSuccessComments && commentsData && !isFetching && !isSubmitting) {
-      setHasMore(commentsData.length === limitComments);
-      setLoading(false);
-    }
-  }, [
-    isSuccessComments,
-    commentsData,
-    isFetching,
-    isSubmitting,
-    limitComments,
-  ]);
-
-  useEffect(() => {
-    if (inView && hasMore && !loading && !isLoadingComments) {
-      setLoading(true);
-      setLimitComments((prev) => prev + 10);
-    }
-  }, [inView, hasMore, loading, isLoadingComments]);
-  useEffect(() => {
-    setLimitComments(10);
-    setHasMore(true);
-    setLoading(false);
-  }, [postId]);
-  if (isLoadingComments) {
+  if (loading) {
     return (
       <section
         className={`${styles.commentSection} ${className || ""}`}
@@ -103,7 +68,7 @@ const CommentSection = ({
       </section>
     );
   }
-  if (errorComments) {
+  if (!comments) {
     return (
       <div className={styles.notFoundContainer}>
         <h1>Comments not found</h1>
@@ -111,107 +76,165 @@ const CommentSection = ({
     );
   }
 
-  if (isSuccessComments) {
-    const rootComments = commentsData.filter(
-      (comment) => comment.parentId === null
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await createComment({
+        userId: currentUser?.id,
+        commentableType: "Post",
+        commentableId: postId,
+        content: newComment,
+      }).unwrap();
+      setComments((prev) => [res, ...prev]);
+      setNewComment("");
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReplyComment = async (parentId, content) => {
+    const newReply = await createComment({
+      userId: currentUser?.id,
+      parentId,
+      commentableType: "Post",
+      commentableId: postId,
+      content,
+    }).unwrap();
+    setComments((prev) => [newReply, ...prev]);
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment({ id: commentId });
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+    }
+  };
+
+  const handleEditComment = async (commentId, newContent) => {
+    try {
+      await updateComment({
+        id: commentId,
+        data: { content: newContent, isEdited: true },
+      });
+      setComments((prev) =>
+        prev.map((comment) => {
+          if (comment.id === commentId) {
+            return {
+              ...comment,
+              content: newContent,
+              isEdited: true,
+            };
+          }
+          return comment;
+        })
+      );
+    } catch (error) {
+      console.error("Failed to edit comment:", error);
+    }
+  };
+
+  const handleLikeComment = async (commentId) => {
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? {
+              ...comment,
+              isLiked: !comment.isLiked,
+              likesCount: comment.isLiked
+                ? comment.likes - 1
+                : comment.likes + 1,
+            }
+          : comment
+      )
     );
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setIsSubmitting(true);
-      try {
-        createComment({
-          userId: currentUser?.id,
-          commentableType: "Post",
-          commentableId: postId,
-          content: newComment,
-        });
-        setNewComment("");
-      } catch (error) {
-        console.error("Failed to add comment:", error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
+  };
 
-    return (
-      <section
-        className={`${styles.commentSection} ${className || ""}`}
-        {...props}
-      >
-        <div className={styles.header}>
-          <h2 className={styles.title}>Comments ({count})</h2>
+  const rootComments = comments.filter((comment) => comment?.parentId === null);
+  return (
+    <section
+      className={`${styles.commentSection} ${className || ""}`}
+      {...props}
+    >
+      <div className={styles.header}>
+        <h2 className={styles.title}>Comments ({count})</h2>
+      </div>
+
+      {/* Comment Form */}
+      {isAuthenticated ? (
+        <form className={styles.commentForm} onSubmit={handleSubmit}>
+          <div className={styles.formGroup}>
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts..."
+              className={styles.commentInput}
+              rows="4"
+              required
+            />
+          </div>
+          <div className={styles.formActions}>
+            <div className={styles.guidelines}>
+              <span>Be respectful and constructive in your comments.</span>
+            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={!newComment.trim() || isSubmitting}
+              loading={isSubmitting}
+            >
+              {isSubmitting ? "Posting..." : "Post Comment"}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div className={styles.loginPrompt}>
+          <p>
+            Please <a href="/login">sign in</a> to leave a comment.
+          </p>
         </div>
+      )}
 
-        {/* Comment Form */}
-        {isAuthenticated ? (
-          <form className={styles.commentForm} onSubmit={handleSubmit}>
-            <div className={styles.formGroup}>
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Share your thoughts..."
-                className={styles.commentInput}
-                rows="4"
-                required
-              />
-            </div>
-            <div className={styles.formActions}>
-              <div className={styles.guidelines}>
-                <span>Be respectful and constructive in your comments.</span>
-              </div>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={!newComment.trim() || isSubmitting}
-                loading={isSubmitting}
-              >
-                {isSubmitting ? "Posting..." : "Post Comment"}
-              </Button>
-            </div>
-          </form>
+      {/* Comments List */}
+      <div className={styles.commentsList}>
+        {rootComments.length === 0 ? (
+          <EmptyState
+            icon="💬"
+            title="No comments yet"
+            description="Be the first to share your thoughts!"
+          />
         ) : (
-          <div className={styles.loginPrompt}>
-            <p>
-              Please <a href="/login">sign in</a> to leave a comment.
-            </p>
+          <div>
+            {rootComments.map((rootComment) => {
+              return (
+                <CommentItem
+                  key={rootComment.id}
+                  postId={postId}
+                  comment={rootComment}
+                  allComments={comments}
+                  onReply={handleReplyComment}
+                  onDelete={handleDeleteComment}
+                  onEdit={handleEditComment}
+                  onLike={handleLikeComment}
+                  showActions={isAuthenticated}
+                />
+              );
+            })}
+            {loading && (
+              <div className={styles.loadingContainer}>
+                <Loading size="md" text="Loading article..." />
+              </div>
+            )}
           </div>
         )}
-
-        {/* Comments List */}
-        <div className={styles.commentsList}>
-          {rootComments.length === 0 ? (
-            <EmptyState
-              icon="💬"
-              title="No comments yet"
-              description="Be the first to share your thoughts!"
-            />
-          ) : (
-            <div>
-              {rootComments.map((rootComment) => {
-                return (
-                  <CommentItem
-                    key={rootComment.id}
-                    postId={postId}
-                    comment={rootComment}
-                    allComments={commentsData}
-                    onLike={isAuthenticated ? onLikeComment : undefined}
-                    showActions={isAuthenticated}
-                  />
-                );
-              })}
-              {loading && (
-                <div className={styles.loadingContainer}>
-                  <Loading size="md" text="Loading article..." />
-                </div>
-              )}
-
-              {hasMore && <div ref={observerRef} style={{ height: "1px" }} />}
-            </div>
-          )}
-        </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
 };
 
 // CommentSection.propTypes = {

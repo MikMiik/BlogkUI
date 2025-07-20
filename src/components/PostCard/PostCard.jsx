@@ -72,20 +72,10 @@ const PostCard = ({
       if (optimisticLiked) {
         await unlikePost({
           postId,
-          data: {
-            userId: currentUser.id,
-            likableType: "Post",
-            likableId: postId,
-          },
         });
       } else {
         await likePost({
           postId,
-          data: {
-            userId: currentUser.id,
-            likableType: "Post",
-            likableId: postId,
-          },
         });
       }
     } catch (error) {

@@ -5,9 +5,7 @@ export const commentEndpoints = (builder) => ({
       method: "POST",
       body: data,
     }),
-    invalidatesTags: (result, error, { postId }) => [
-      { type: "Comment", postId },
-    ],
+    transformResponse: (response) => response.data,
   }),
   updateComment: builder.mutation({
     query: ({ id, data }) => ({
@@ -15,17 +13,29 @@ export const commentEndpoints = (builder) => ({
       method: "PATCH",
       body: data,
     }),
-    invalidatesTags: (result, error, { postId }) => [
-      { type: "Comment", postId },
-    ],
+  }),
+  likeComment: builder.mutation({
+    query: ({ commentId }) => ({
+      url: `comments/${commentId}/like`,
+      method: "POST",
+      body: {
+        commentId,
+      },
+    }),
+  }),
+  unlikeComment: builder.mutation({
+    query: ({ commentId }) => ({
+      url: `comments/${commentId}/unlike`,
+      method: "DELETE",
+      body: {
+        commentId,
+      },
+    }),
   }),
   deleteComment: builder.mutation({
     query: ({ id }) => ({
       url: `comments/${id}`,
       method: "DELETE",
     }),
-    invalidatesTags: (result, error, { postId }) => [
-      { type: "Comment", postId },
-    ],
   }),
 });
