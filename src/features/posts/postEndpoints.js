@@ -53,6 +53,26 @@ export const postEndpoints = (builder) => ({
     }),
     invalidatesTags: ["Post"],
   }),
+  bookmarkPost: builder.mutation({
+    query: ({ postId }) => ({
+      url: `posts/${postId}/bookmark`,
+      method: "POST",
+      body: {
+        postId,
+      },
+    }),
+    invalidatesTags: ["Post"],
+  }),
+  unBookmarkPost: builder.mutation({
+    query: ({ postId }) => ({
+      url: `posts/${postId}/unbookmark`,
+      method: "DELETE",
+      body: {
+        postId,
+      },
+    }),
+    invalidatesTags: ["Post"],
+  }),
 
   deletePost: builder.mutation({
     query: (id) => ({

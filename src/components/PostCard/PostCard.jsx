@@ -6,10 +6,11 @@ import Badge from "../Badge/Badge";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import styles from "./PostCard.module.scss";
 import {
+  useBookmarkPostMutation,
   useLikePostMutation,
+  useUnBookmarkPostMutation,
   useUnlikePostMutation,
 } from "@/features/posts/postsApi";
-import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const PostCard = ({
   postId,
@@ -31,7 +32,6 @@ const PostCard = ({
   isBookmarked = false,
   showViewCount = true,
   showInteractions = true,
-  onBookmark,
   ...props
 }) => {
   const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
@@ -39,11 +39,14 @@ const PostCard = ({
     useState(isBookmarked);
   const [optimisticLikes, setOptimisticLikes] = useState(likesCount);
   const [likingInProgress, setLikingInProgress] = useState(false);
-  const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
+  const [bookmarkingInProgress, setBookmarkingInProgress] =
+    useState(isBookmarked);
+
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
+  const [bookmarkPost] = useBookmarkPostMutation();
+  const [unBookmarkPost] = useUnBookmarkPostMutation();
 
-  const currentUser = useCurrentUser();
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -89,7 +92,7 @@ const PostCard = ({
   };
 
   const handleBookmark = async () => {
-    if (!onBookmark || bookmarkingInProgress) return;
+    if (bookmarkingInProgress) return;
 
     setBookmarkingInProgress(true);
 
@@ -97,9 +100,16 @@ const PostCard = ({
     setOptimisticBookmarked(!optimisticBookmarked);
 
     try {
-      await onBookmark(slug, !optimisticBookmarked);
+      if (optimisticBookmarked) {
+        await unBookmarkPost({
+          postId,
+        });
+      } else {
+        await bookmarkPost({
+          postId,
+        });
+      }
     } catch (error) {
-      // Revert on error
       setOptimisticBookmarked(optimisticBookmarked);
       console.error("Failed to toggle bookmark:", error);
     } finally {

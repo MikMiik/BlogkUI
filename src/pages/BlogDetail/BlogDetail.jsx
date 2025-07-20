@@ -9,8 +9,10 @@ import {
 } from "../../components";
 import styles from "./BlogDetail.module.scss";
 import {
+  useBookmarkPostMutation,
   useGetOnePostQuery,
   useLikePostMutation,
+  useUnBookmarkPostMutation,
   useUnlikePostMutation,
 } from "@/features/posts/postsApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
@@ -37,12 +39,16 @@ const BlogDetail = () => {
 
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
-  const [isLiked, setIsLiked] = useState(post?.isLiked);
-  const [likes, setLikes] = useState(post?.likesCount);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likes, setLikes] = useState(0);
+
+  const [bookmarkPost] = useBookmarkPostMutation();
+  const [unBookmarkPost] = useUnBookmarkPostMutation();
   useEffect(() => {
     if (post) {
       setIsLiked(post.isLiked);
       setLikes(post.likesCount);
+      setIsBookmarked(post.isBookmarked);
     }
   }, [post]);
   if (isLoadingPost) {
@@ -64,6 +70,8 @@ const BlogDetail = () => {
     );
   }
   if (isSuccessPost) {
+    console.log(post);
+
     const handleLikePost = async () => {
       if (likingInProgress) return;
       setLikingInProgress(true);
@@ -88,24 +96,29 @@ const BlogDetail = () => {
     };
 
     const handleBookmarkPost = async () => {
-      // if (bookmarkingInProgress) return;
+      if (bookmarkingInProgress) return;
 
-      // setBookmarkingInProgress(true);
+      setBookmarkingInProgress(true);
 
-      // // Optimistic update
-      // setIsBookmarked(!isBookmarked);
+      // Optimistic update
+      setIsBookmarked(!isBookmarked);
 
-      // try {
-      //   // Simulate API call
-      //   await new Promise((resolve) => setTimeout(resolve, 500));
-      //   console.log("Post bookmark toggled:", !isBookmarked);
-      // } catch (error) {
-      //   // Revert on error
-      //   setIsBookmarked(isBookmarked);
-      //   console.error("Failed to toggle bookmark:", error);
-      // } finally {
-      //   setBookmarkingInProgress(false);
-      // }
+      try {
+        if (isBookmarked) {
+          await unBookmarkPost({
+            postId: post.id,
+          });
+        } else {
+          await bookmarkPost({
+            postId: post.id,
+          });
+        }
+      } catch (error) {
+        setIsBookmarked(isBookmarked);
+        console.error("Failed to toggle bookmark:", error);
+      } finally {
+        setBookmarkingInProgress(false);
+      }
       console.log("click bookmark");
     };
 

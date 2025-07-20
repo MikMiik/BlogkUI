@@ -53,6 +53,7 @@ const PostList = ({
               topics={post.topics}
               slug={post.slug}
               isLiked={post.isLiked}
+              isBookmarked={post.isBookmarked}
               featuredImage={post.thumbnail}
               viewsCount={post.viewsCount}
               likesCount={post.likesCount}

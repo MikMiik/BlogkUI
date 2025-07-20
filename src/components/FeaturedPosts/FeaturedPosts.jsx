@@ -69,6 +69,7 @@ const FeaturedPosts = ({
               slug={post.slug}
               featuredImage={post.thumbnail}
               isLiked={post.isLiked}
+              isBookmarked={post.isBookmarked}
               likesCount={post.likesCount}
               viewsCount={post.viewsCount}
             />
