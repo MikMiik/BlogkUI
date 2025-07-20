@@ -2,6 +2,7 @@ export const postEndpoints = (builder) => ({
   getAllPosts: builder.query({
     query: ({ limit, page }) => `posts?limit=${limit}&page=${page}`,
     transformResponse: (response) => response.data,
+    providesTags: ["Post"],
   }),
   getOnePost: builder.query({
     query: (id) => `posts/${id}`,
@@ -32,6 +33,25 @@ export const postEndpoints = (builder) => ({
     }),
     transformResponse: (response) => response.data,
   }),
+  likePost: builder.mutation({
+    query: ({ postId, data }) => ({
+      url: `posts/${postId}/like`,
+      method: "POST",
+      body: data,
+    }),
+    transformResponse: (response) => response.data,
+    invalidatesTags: ["Post"],
+  }),
+  unlikePost: builder.mutation({
+    query: ({ postId, data }) => ({
+      url: `posts/${postId}/unlike`,
+      method: "DELETE",
+      body: data,
+    }),
+    transformResponse: (response) => response.data,
+    invalidatesTags: ["Post"],
+  }),
+
   deletePost: builder.mutation({
     query: (id) => ({
       url: `posts/${id}`,

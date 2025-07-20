@@ -37,12 +37,14 @@ const PostList = ({
     );
   }
   const displayPosts = posts.slice(0, maxPosts);
+
   return (
     <div className={`${styles.postList} ${className || ""}`} {...props}>
       <div className={`${styles.postsContainer} ${styles[layout]}`}>
         {displayPosts.map((post) => (
           <div key={post.id || post.slug} className={styles.postItem}>
             <PostCard
+              postId={post.id}
               title={post.title}
               excerpt={post.excerpt}
               author={post.author}
@@ -50,6 +52,7 @@ const PostList = ({
               readTime={post.readTime}
               topics={post.topics}
               slug={post.slug}
+              isLiked={post.isLiked}
               featuredImage={post.thumbnail}
               viewsCount={post.viewsCount}
               likesCount={post.likesCount}

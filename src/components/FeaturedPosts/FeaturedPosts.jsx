@@ -59,6 +59,7 @@ const FeaturedPosts = ({
             }`}
           >
             <PostCard
+              postId={post.id}
               title={post.title}
               excerpt={post.excerpt}
               author={post.author}
@@ -67,8 +68,9 @@ const FeaturedPosts = ({
               topics={post.topics}
               slug={post.slug}
               featuredImage={post.thumbnail}
-              likes={post.viewsCount}
-              views={post.likesCount}
+              isLiked={post.isLiked}
+              likesCount={post.likesCount}
+              viewsCount={post.viewsCount}
             />
           </div>
         ))}

@@ -1,11 +1,13 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { TopicList, FeaturedPosts, PostList, Button } from "../../components";
 import styles from "./Home.module.scss";
 import { useGetAllPostsQuery } from "@/features/posts/postsApi";
 import { useGetAllTopicsQuery } from "@/features/topicsApi";
+import { useEffect } from "react";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const limit = searchParams.get("limit") || 10;
   const page = searchParams.get("page") || 1;
   const {
@@ -38,6 +40,7 @@ const Home = () => {
     const featuredPosts = posts.items.featuredPosts;
     const latestPosts = posts.items.latestPosts;
     const trendingTopics = topics.trendingTopics;
+
     return (
       <div className={styles.home}>
         {/* Hero Section */}

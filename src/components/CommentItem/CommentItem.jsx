@@ -41,13 +41,14 @@ const CommentItem = ({
     id,
     commenter,
     content,
-    createdAt,
     likesCount = 0,
     isLiked = false,
-    isEdited = false,
+    // isEdited = false,
+    createdAt,
+    updatedAt,
   } = comment;
-  const commenterName = commenter.firstName + " " + commenter.lastName;
   const replies = allComments.filter((comment) => comment.parentId === id);
+  const isEdited = updatedAt > createdAt;
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -145,7 +146,7 @@ const CommentItem = ({
       <div className={styles.comment}>
         {/* Avatar */}
         <div className={styles.avatar}>
-          <FallbackImage src={commenter.avatar} alt={commenterName} />
+          <FallbackImage src={commenter.avatar} alt={commenter.name} />
         </div>
 
         {/* Content */}
@@ -156,11 +157,11 @@ const CommentItem = ({
               <Link
                 to={`/profile/${
                   commenter?.username ||
-                  commenterName.toLowerCase().replace(/\s+/g, "-")
+                  commenter?.name.toLowerCase().replace(/\s+/g, "-")
                 }`}
                 className={styles.authorName}
               >
-                {commenterName}
+                {commenter?.name}
               </Link>
               <time className={styles.date} dateTime={createdAt}>
                 {formatDate(createdAt)}

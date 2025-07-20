@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   BlogContent,
@@ -8,7 +8,11 @@ import {
   Loading,
 } from "../../components";
 import styles from "./BlogDetail.module.scss";
-import { useGetOnePostQuery } from "@/features/posts/postsApi";
+import {
+  useGetOnePostQuery,
+  useLikePostMutation,
+  useUnlikePostMutation,
+} from "@/features/posts/postsApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const BlogDetail = () => {
@@ -17,19 +21,30 @@ const BlogDetail = () => {
   const isAuthenticated = Boolean(currentUser);
 
   // Like and bookmark states
-  const [isLiked, setIsLiked] = useState(false);
+
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likingInProgress, setLikingInProgress] = useState(false);
   const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
 
   const {
-    data: postData,
+    data: { post, relatedPosts } = {},
     isLoading: isLoadingPost,
     error: errorPost,
     isSuccess: isSuccessPost,
   } = useGetOnePostQuery(slug, {
     refetchOnMountOrArgChange: true,
   });
+
+  const [likePost] = useLikePostMutation();
+  const [unlikePost] = useUnlikePostMutation();
+  const [isLiked, setIsLiked] = useState(post?.isLiked);
+  const [likes, setLikes] = useState(post?.likesCount);
+  useEffect(() => {
+    if (post) {
+      setIsLiked(post.isLiked);
+      setLikes(post.likesCount);
+    }
+  }, [post]);
   if (isLoadingPost) {
     return (
       <div className={styles.loadingContainer}>
@@ -49,48 +64,37 @@ const BlogDetail = () => {
     );
   }
   if (isSuccessPost) {
-    const { post, relatedPosts } = postData;
-
-    const handleLikeComment = async (commentId) => {
-      // // Simulate API call
-      // await new Promise((resolve) => setTimeout(resolve, 200));
-
-      // setComments((prev) =>
-      //   prev.map((comment) =>
-      //     comment.id === commentId
-      //       ? {
-      //           ...comment,
-      //           isLiked: !comment.isLiked,
-      //           likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
-      //         }
-      //       : comment
-      //   )
-      // );
-      console.log("click like");
-    };
-
     const handleLikePost = async () => {
-      // if (likingInProgress) return;
-
-      // setLikingInProgress(true);
-
-      // // Optimistic update
-      // setIsLiked(!isLiked);
-      // // setLikes(isLiked ? likes - 1 : likes + 1);
-
-      // try {
-      //   // Simulate API call
-      //   await new Promise((resolve) => setTimeout(resolve, 500));
-      //   console.log("Post like toggled:", !isLiked);
-      // } catch (error) {
-      //   // Revert on error
-      //   setIsLiked(isLiked);
-      //   // setLikes(likes);
-      //   console.error("Failed to toggle like:", error);
-      // } finally {
-      //   setLikingInProgress(false);
-      // }
-      console.log("click like");
+      if (likingInProgress) return;
+      setLikingInProgress(true);
+      setIsLiked(!isLiked);
+      setLikes(isLiked ? likes - 1 : likes + 1);
+      try {
+        if (isLiked) {
+          await unlikePost({
+            postId: post.id,
+            data: {
+              userId: currentUser.id,
+              likableType: "Post",
+              likableId: post.id,
+            },
+          });
+        } else {
+          await likePost({
+            postId: post.id,
+            data: {
+              userId: currentUser.id,
+              likableType: "Post",
+              likableId: post.id,
+            },
+          });
+        }
+      } catch (error) {
+        setIsLiked(isLiked);
+        setLikes(likes);
+      } finally {
+        setLikingInProgress(false);
+      }
     };
 
     const handleBookmarkPost = async () => {
@@ -147,7 +151,7 @@ const BlogDetail = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span>{post.likesCount} likes</span>
+                <span>{likes} likes</span>
               </div>
             </div>
 
@@ -220,11 +224,7 @@ const BlogDetail = () => {
 
         {/* Comments */}
         <div className={styles.contentSection}>
-          <CommentSection
-            postId={post.id}
-            onLikeComment={handleLikeComment}
-            isAuthenticated={isAuthenticated}
-          />
+          <CommentSection postId={post.id} isAuthenticated={isAuthenticated} />
         </div>
       </div>
     );

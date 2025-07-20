@@ -1,12 +1,18 @@
-import { useState, memo } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Card from "../Card/Card";
 import Badge from "../Badge/Badge";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import styles from "./PostCard.module.scss";
+import {
+  useLikePostMutation,
+  useUnlikePostMutation,
+} from "@/features/posts/postsApi";
+import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const PostCard = ({
+  postId,
   title,
   excerpt,
   author,
@@ -25,7 +31,6 @@ const PostCard = ({
   isBookmarked = false,
   showViewCount = true,
   showInteractions = true,
-  onLike,
   onBookmark,
   ...props
 }) => {
@@ -35,7 +40,10 @@ const PostCard = ({
   const [optimisticLikes, setOptimisticLikes] = useState(likesCount);
   const [likingInProgress, setLikingInProgress] = useState(false);
   const [bookmarkingInProgress, setBookmarkingInProgress] = useState(false);
+  const [likePost] = useLikePostMutation();
+  const [unlikePost] = useUnlikePostMutation();
 
+  const currentUser = useCurrentUser();
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -50,7 +58,7 @@ const PostCard = ({
       : excerpt;
 
   const handleLike = async () => {
-    if (!onLike || likingInProgress) return;
+    if (likingInProgress) return;
 
     setLikingInProgress(true);
 
@@ -61,7 +69,25 @@ const PostCard = ({
     );
 
     try {
-      await onLike(slug, !optimisticLiked);
+      if (optimisticLiked) {
+        await unlikePost({
+          postId,
+          data: {
+            userId: currentUser.id,
+            likableType: "Post",
+            likableId: postId,
+          },
+        });
+      } else {
+        await likePost({
+          postId,
+          data: {
+            userId: currentUser.id,
+            likableType: "Post",
+            likableId: postId,
+          },
+        });
+      }
     } catch (error) {
       // Revert on error
       setOptimisticLiked(optimisticLiked);
@@ -331,4 +357,4 @@ PostCard.propTypes = {
   onBookmark: PropTypes.func,
 };
 
-export default memo(PostCard);
+export default PostCard;

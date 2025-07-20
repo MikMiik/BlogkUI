@@ -16,4 +16,6 @@ export const {
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useLikePostMutation,
+  useUnlikePostMutation,
 } = postsApi;
