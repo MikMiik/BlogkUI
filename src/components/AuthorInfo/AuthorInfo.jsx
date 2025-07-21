@@ -38,6 +38,7 @@ const AuthorInfo = ({
     introduction,
     role,
     avatar,
+    website,
     socials = {},
     postsCount,
     followersCount,
@@ -156,9 +157,9 @@ const AuthorInfo = ({
                 </svg>
               </a>
             )}
-            {socials.website && (
+            {website && (
               <a
-                href={socials.website}
+                href={website}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.socialLink}

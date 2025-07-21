@@ -89,6 +89,10 @@ const request = async (method, url, data, config) => {
       method: effecctiveMethod,
       url: effecctivePath,
       data,
+      headers: {
+        ...config?.headers,
+      },
+
       ...config,
     });
     console.log(res.data);

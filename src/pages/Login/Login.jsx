@@ -35,7 +35,6 @@ const Login = () => {
     const verifyToken = async () => {
       try {
         const res = await verifyEmailToken(token);
-        console.log(res);
         if (res.success) {
           setIsTokenValid(true);
           localStorage.setItem("token", res.data.accessToken);

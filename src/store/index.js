@@ -13,7 +13,6 @@ const rootConfig = {
   key: "root",
   storage,
   blacklist: ["api"],
-  // whitelist
 };
 
 const rootReducer = combineReducers({

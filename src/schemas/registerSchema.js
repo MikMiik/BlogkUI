@@ -2,14 +2,17 @@ import * as yup from "yup";
 const registerSchema = yup.object().shape({
   firstName: yup
     .string()
+    .trim()
     .required("Please enter your first name")
     .min(2, "First name must be at least 2 characters"),
   lastName: yup
     .string()
+    .trim()
     .required("Please enter your first name")
     .min(2, "Last name must be at least 2 characters"),
   email: yup
     .string()
+    .trim()
     .email("This field must be an email")
     .required("Please enter your email"),
   password: yup

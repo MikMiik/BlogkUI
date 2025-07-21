@@ -197,7 +197,7 @@ const Profile = () => {
                   <h3>Skills</h3>
                   <div className={styles.skills}>
                     {profile.skills.map((skill) => (
-                      <Badge key={skill} variant="secondary" size="sm">
+                      <Badge key={skill.name} variant="secondary" size="sm">
                         {skill.name}
                       </Badge>
                     ))}
@@ -238,15 +238,15 @@ const Profile = () => {
                       <span>{profile.address}</span>
                     </div>
                   )}
-                  {profile.socials?.website && (
+                  {profile.website && (
                     <div className={styles.infoItem}>
                       <span className={styles.infoIcon}>🌐</span>
                       <a
-                        href={profile.socials?.website || ""}
+                        href={profile.website || ""}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {profile.socials?.website?.replace(/^https?:\/\//, "")}
+                        {profile.website?.replace(/^https?:\/\//, "")}
                       </a>
                     </div>
                   )}

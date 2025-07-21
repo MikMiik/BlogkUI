@@ -1,10 +1,15 @@
 import { baseApi } from "./baseApi";
 
 export const profileApi = baseApi.injectEndpoints({
+  reducerPath: "profileApi",
   endpoints: (builder) => ({
     getOneProfile: builder.query({
       query: ({ username, page, limit }) =>
         `profiles/${username}?page=${page}&limit=${limit}`,
+      transformResponse: (response) => response.data,
+    }),
+    getOneProfileToEdit: builder.query({
+      query: ({ username }) => `profiles/${username}/edit`,
       transformResponse: (response) => response.data,
     }),
     createProfile: builder.mutation({
@@ -17,10 +22,11 @@ export const profileApi = baseApi.injectEndpoints({
     }),
     updateProfile: builder.mutation({
       query: ({ id, data }) => ({
-        url: `profiles/${id}`,
-        method: "PATCH",
+        url: `profiles/${id}/edit`,
+        method: "PUT",
         body: data,
       }),
+
       transformResponse: (response) => response.data,
     }),
     deleteProfile: builder.mutation({
@@ -33,8 +39,8 @@ export const profileApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetAllProfilesQuery,
   useGetOneProfileQuery,
+  useGetOneProfileToEditQuery,
   useCreateProfileMutation,
   useUpdateProfileMutation,
   useDeleteProfileMutation,
