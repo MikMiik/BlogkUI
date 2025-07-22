@@ -197,8 +197,8 @@ const Profile = () => {
                   <h3>Skills</h3>
                   <div className={styles.skills}>
                     {profile.skills.map((skill) => (
-                      <Badge key={skill.name} variant="secondary" size="sm">
-                        {skill.name}
+                      <Badge key={skill} variant="secondary" size="sm">
+                        {skill}
                       </Badge>
                     ))}
                   </div>

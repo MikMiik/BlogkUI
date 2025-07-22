@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import Card from "../../components/Card/Card";
@@ -16,6 +16,7 @@ import profileSchema from "@/schemas/profileShema";
 
 const EditProfile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -255,11 +256,11 @@ const EditProfile = () => {
             id: currentUser.id,
             data: formDataToSend,
           });
+          navigate(`/profile/${formData.username}/edit`, {
+            state: { message: "Profile updated successfully!" },
+          });
+          window.scrollTo({ top: 0, behavior: "smooth" });
         }
-
-        // navigate(`/profile/${formData.username}`, {
-        //   state: { message: "Profile updated successfully!" },
-        // });
       } catch (err) {
         if (err instanceof yup.ValidationError) {
           err.inner.forEach((error) => {
@@ -290,7 +291,11 @@ const EditProfile = () => {
               ← Back
             </Button>
             <h1>Edit Profile</h1>
-            <p>Update your profile information and settings</p>
+            {location.state?.message ? (
+              <p className={styles.editSuccess}>{location.state.message}</p>
+            ) : (
+              <p>Update your profile information and settings</p>
+            )}
           </div>
 
           <Card className={styles.formCard}>

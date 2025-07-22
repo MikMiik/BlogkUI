@@ -15,6 +15,16 @@
     text-align: center;
     margin-bottom: $spacing-8;
     position: relative;
+    .editSuccess {
+    @include body-base;
+    color: $success-600;
+    margin: 0;
+    line-height: $leading-relaxed;
+
+    @include mobile-only {
+        font-size: $text-sm;
+    }
+}
 
     .backButton {
         position: absolute;
@@ -424,3 +434,4 @@ input:focus {
         margin-right: $spacing-6;
     }
 }
+
