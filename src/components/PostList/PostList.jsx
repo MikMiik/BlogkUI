@@ -75,29 +75,29 @@ const PostList = ({
   );
 };
 
-PostList.propTypes = {
-  posts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      title: PropTypes.string.isRequired,
-      excerpt: PropTypes.string,
-      author: PropTypes.shape({
-        avatar: PropTypes.string,
-      }).isRequired,
-      publishedAt: PropTypes.string.isRequired,
-      readTime: PropTypes.number,
-      topic: PropTypes.string,
-      slug: PropTypes.string.isRequired,
-      featuredImage: PropTypes.string,
-    })
-  ),
-  loading: PropTypes.bool,
-  currentPage: PropTypes.number,
-  totalPages: PropTypes.number,
-  onPageChange: PropTypes.func,
-  showPagination: PropTypes.bool,
-  layout: PropTypes.oneOf(["grid", "list"]),
-  className: PropTypes.string,
-};
+// PostList.propTypes = {
+//   posts: PropTypes.arrayOf(
+//     PropTypes.shape({
+//       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+//       title: PropTypes.string.isRequired,
+//       excerpt: PropTypes.string,
+//       author: PropTypes.shape({
+//         avatar: PropTypes.string,
+//       }).isRequired,
+//       publishedAt: PropTypes.string.isRequired,
+//       readTime: PropTypes.number,
+//       topic: PropTypes.string,
+//       slug: PropTypes.string.isRequired,
+//       featuredImage: PropTypes.string,
+//     })
+//   ),
+//   loading: PropTypes.bool,
+//   currentPage: PropTypes.number,
+//   totalPages: PropTypes.number,
+//   onPageChange: PropTypes.func,
+//   showPagination: PropTypes.bool,
+//   layout: PropTypes.oneOf(["grid", "list"]),
+//   className: PropTypes.string,
+// };
 
 export default PostList;

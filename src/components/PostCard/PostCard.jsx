@@ -330,30 +330,30 @@ const PostCard = ({
   );
 };
 
-PostCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  excerpt: PropTypes.string,
-  author: PropTypes.shape({
-    avatar: PropTypes.string,
-    username: PropTypes.string,
-  }).isRequired,
-  publishedAt: PropTypes.string.isRequired,
-  readTime: PropTypes.number,
-  topic: PropTypes.array,
-  slug: PropTypes.string,
-  featuredImage: PropTypes.string,
-  loading: PropTypes.bool,
-  compact: PropTypes.bool,
-  className: PropTypes.string,
-  // New interaction props
-  // likes: PropTypes.number,
-  // views: PropTypes.number,
-  isLiked: PropTypes.bool,
-  isBookmarked: PropTypes.bool,
-  showViewCount: PropTypes.bool,
-  showInteractions: PropTypes.bool,
-  onLike: PropTypes.func,
-  onBookmark: PropTypes.func,
-};
+// PostCard.propTypes = {
+//   title: PropTypes.string.isRequired,
+//   excerpt: PropTypes.string,
+//   author: PropTypes.shape({
+//     avatar: PropTypes.string,
+//     username: PropTypes.string,
+//   }).isRequired,
+//   publishedAt: PropTypes.string.isRequired,
+//   readTime: PropTypes.number,
+//   topic: PropTypes.array,
+//   slug: PropTypes.string,
+//   featuredImage: PropTypes.string,
+//   loading: PropTypes.bool,
+//   compact: PropTypes.bool,
+//   className: PropTypes.string,
+//   // New interaction props
+//   // likes: PropTypes.number,
+//   // views: PropTypes.number,
+//   isLiked: PropTypes.bool,
+//   isBookmarked: PropTypes.bool,
+//   showViewCount: PropTypes.bool,
+//   showInteractions: PropTypes.bool,
+//   onLike: PropTypes.func,
+//   onBookmark: PropTypes.func,
+// };
 
 export default PostCard;

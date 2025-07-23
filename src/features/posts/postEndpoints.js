@@ -73,7 +73,6 @@ export const postEndpoints = (builder) => ({
     }),
     invalidatesTags: ["Post"],
   }),
-
   deletePost: builder.mutation({
     query: (id) => ({
       url: `posts/${id}`,
