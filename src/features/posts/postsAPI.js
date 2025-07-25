@@ -13,6 +13,7 @@ export const {
   useGetAllPostsQuery,
   useGetOwnPostsQuery,
   useGetOnePostQuery,
+  useGetBookmarkPostsQuery,
   useGetPostToEditQuery,
   useGetCommentsQuery,
   useCreatePostMutation,

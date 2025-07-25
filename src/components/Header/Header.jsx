@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import Navigation from "../Navigation/Navigation";
 import Button from "../Button/Button";
@@ -12,6 +12,7 @@ import { removeCurrentUser } from "@/features/auth/authSlice";
 const Header = () => {
   const currentUser = useSelector((state) => state.auth.currentUser);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -100,6 +101,7 @@ const Header = () => {
     }
     setIsDropdownOpen(false);
     setIsNotificationOpen(false);
+    navigate("/");
   };
 
   const handleNotificationToggle = () => {

@@ -20,6 +20,11 @@ export const postEndpoints = (builder) => ({
     transformResponse: (response) => response.data,
     providesTags: ["OwnPost"],
   }),
+  getBookmarkPosts: builder.query({
+    query: ({ limit = 10, page = 1 }) =>
+      `posts/bookmarks?limit=${limit}&page=${page}`,
+    transformResponse: (response) => response.data,
+  }),
   getComments: builder.query({
     query: ({ postId, limitComments }) =>
       `posts/${postId}/comments?limitComments=${limitComments}`,
