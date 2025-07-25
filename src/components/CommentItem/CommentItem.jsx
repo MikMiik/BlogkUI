@@ -14,6 +14,7 @@ const CommentItem = ({
   comment,
   allComments = [],
   postId,
+  maxLevel = 2,
   level = 0,
   onReply,
   onDelete,
@@ -140,7 +141,10 @@ const CommentItem = ({
   return (
     <div
       className={`${styles.commentItem} ${className || ""}`}
-      style={{ "--comment-indent": level > 0 ? `${level * 24}px` : "0" }}
+      style={{
+        "--comment-indent":
+          level > 0 && level < maxLevel ? `${level * 48}px` : "0",
+      }}
       {...props}
     >
       <div className={styles.comment}>
@@ -378,6 +382,7 @@ const CommentItem = ({
               allComments={allComments}
               postId={postId}
               level={level + 1}
+              maxLevel={maxLevel}
               onReply={onReply}
               onEdit={onEdit}
               onDelete={onDelete}

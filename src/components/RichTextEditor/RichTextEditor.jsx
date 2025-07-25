@@ -5,6 +5,7 @@ import "react-quill-new/dist/quill.snow.css";
 import styles from "./RichTextEditor.module.scss";
 import { useRef } from "react";
 import { useUploadMutation } from "@/features/profileApi copy";
+
 const RichTextEditor = ({
   value = "",
   onChange,

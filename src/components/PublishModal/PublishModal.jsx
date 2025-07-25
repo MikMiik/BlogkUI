@@ -21,6 +21,7 @@ const PublishModal = ({
   handleRemoveTopic,
   handleImageUpload,
   isPublishing = false,
+  imagePreview,
 }) => {
   const [isScheduled, setIsScheduled] = useState(false);
   const [publishDate, setPublishDate] = useState("");
@@ -56,6 +57,7 @@ const PublishModal = ({
   const handlePublish = () => {
     const publishData = {
       ...formData,
+      status: "published",
       isScheduled,
       publishDate: isScheduled ? publishDate : null,
     };
@@ -114,10 +116,10 @@ const PublishModal = ({
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Cover Image</h3>
 
-            {formData.coverImage ? (
+            {imagePreview ? (
               <div className={styles.imagePreview}>
                 <FallbackImage
-                  src={formData.coverImage}
+                  src={imagePreview}
                   alt="Cover preview"
                   className={styles.coverImage}
                 />

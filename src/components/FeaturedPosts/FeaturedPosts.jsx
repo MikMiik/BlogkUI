@@ -42,6 +42,7 @@ const FeaturedPosts = ({
   }
 
   const displayPosts = posts.slice(0, maxPosts);
+  console.log(displayPosts);
 
   return (
     <section
@@ -67,6 +68,7 @@ const FeaturedPosts = ({
               readTime={post.readTime}
               topics={post.topics}
               slug={post.slug}
+              status={post.status}
               featuredImage={post.thumbnail}
               isLiked={post.isLiked}
               isBookmarked={post.isBookmarked}

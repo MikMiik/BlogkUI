@@ -9,7 +9,12 @@ import PublishModal from "../../components/PublishModal/PublishModal";
 import styles from "./WritePost.module.scss";
 import writePostSchema from "@/schemas/writePostSchema";
 import * as yup from "yup";
-import { useCreatePostMutation } from "@/features/posts/postsApi";
+import {
+  useDraftpostMutation,
+  useEditPostMutation,
+  useGetPostToEditQuery,
+  usePublishPostMutation,
+} from "@/features/posts/postsApi";
 
 const WritePost = () => {
   const { slug } = useParams();
@@ -22,8 +27,8 @@ const WritePost = () => {
     content: "",
     coverImage: "",
     topics: [],
-    status: "Draft",
-    visibility: "Public",
+    status: "published",
+    visibility: "Only me",
     metaTitle: "",
     metaDescription: "",
   });
@@ -35,7 +40,26 @@ const WritePost = () => {
   const [topicInput, setTopicInput] = useState("");
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
-  const [createPost] = useCreatePostMutation();
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const [draftPost] = useDraftpostMutation();
+  const [publishPost] = usePublishPostMutation();
+  const [editPost] = useEditPostMutation();
+
+  const { data: post, isSuccess } = useGetPostToEditQuery(slug, {
+    skip: !isEditing,
+    refetchOnMountOrArgChange: true,
+  });
+
+  useEffect(() => {
+    if (isEditing && isSuccess) {
+      console.log(post);
+
+      setFormData(post);
+      setSelectedTopics(post.topics.map((topic) => topic.name));
+      setImagePreview(post.thumbnail);
+    }
+  }, [isEditing, isSuccess, post]);
 
   const headerRef = useRef(null);
 
@@ -53,28 +77,6 @@ const WritePost = () => {
     "Frontend",
     "DevOps",
   ];
-
-  useEffect(() => {
-    if (isEditing) {
-      // Mock existing post data
-      const mockPost = {
-        title: "Getting Started with React Hooks",
-        excerpt:
-          "Learn the fundamentals of React Hooks and how they can simplify your component logic.",
-        content:
-          "# Getting Started with React Hooks\n\nReact Hooks revolutionized how we write components...",
-        coverImage: "https://via.placeholder.com/800x400?text=React+Hooks",
-        topics: ["React", "JavaScript"],
-        status: "draft",
-        visibility: "public",
-        metaTitle: "Getting Started with React Hooks - Complete Guide",
-        metaDescription:
-          "Comprehensive guide to React Hooks, covering useState, useEffect, and custom hooks with practical examples and best practices.",
-      };
-      setFormData(mockPost);
-      setSelectedTopics(mockPost.topics);
-    }
-  }, [isEditing]);
 
   // Sticky header scroll effect
   useEffect(() => {
@@ -145,7 +147,7 @@ const WritePost = () => {
       return false;
     }
   };
-  const handleSave = async (status = "Draft") => {
+  const handleSave = async (status = "draft") => {
     const result = await validateForm();
     if (!result) return;
 
@@ -157,7 +159,14 @@ const WritePost = () => {
         draftedAt: new Date().toISOString(),
         readTime: readingTime,
       };
-      await createPost(postData);
+
+      if (isEditing && slug) {
+        const res = await editPost({ id: slug, data: postData });
+        console.log(res);
+        return;
+      }
+      const { data } = await draftPost(postData);
+      setFormData((prev) => ({ ...prev, postId: data.postId }));
     } catch (error) {
       console.error("Error saving post:", error);
     } finally {
@@ -172,6 +181,9 @@ const WritePost = () => {
       ...prev,
       coverImage: file,
     }));
+
+    const objectUrl = URL.createObjectURL(file);
+    setImagePreview(objectUrl);
   };
 
   const handleOpenPublishModal = () => {
@@ -195,23 +207,22 @@ const WritePost = () => {
       // Duyệt toàn bộ publishData để append
       for (const [key, value] of Object.entries(publishData)) {
         if (Array.isArray(value)) {
-          // Gửi mảng dưới dạng JSON string
           formData.append(key, JSON.stringify(value));
         } else if (value instanceof File) {
-          // Gửi file (như ảnh, video)
           formData.append(key, value);
         } else if (typeof value === "object" && value !== null) {
-          // Gửi object như {a: 1, b: 2}
           formData.append(key, JSON.stringify(value));
         } else {
-          // Dữ liệu thông thường
           formData.append(key, value);
         }
       }
+      if (isEditing && slug) {
+        await editPost({ id: slug, data: formData });
+        navigate("/my-posts");
+        return;
+      }
+      await publishPost(formData);
 
-      await createPost(formData);
-
-      console.log("Publishing post:", publishData);
       setShowPublishModal(false);
       navigate("/my-posts");
     } catch (error) {
@@ -361,7 +372,7 @@ const WritePost = () => {
               onClick={handleOpenPublishModal}
               disabled={saving}
             >
-              {isEditing ? "Update" : "Publish"}
+              {"Publish"}
             </Button>
           </div>
         </div>
@@ -381,6 +392,7 @@ const WritePost = () => {
         handleRemoveTopic={handleRemoveTopic}
         handleImageUpload={handleImageUpload}
         isPublishing={saving}
+        imagePreview={imagePreview}
       />
     </div>
   );

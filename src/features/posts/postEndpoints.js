@@ -1,21 +1,29 @@
 export const postEndpoints = (builder) => ({
   getAllPosts: builder.query({
-    query: ({ limit, page }) => `posts?limit=${limit}&page=${page}`,
+    query: ({ limit = 10, page = 1 }) => `posts?limit=${limit}&page=${page}`,
     transformResponse: (response) => response.data,
     providesTags: ["Post"],
+  }),
+  getOwnPosts: builder.query({
+    query: ({ limit = 10, page = 1 }) =>
+      `posts/my-posts?limit=${limit}&page=${page}`,
+    transformResponse: (response) => response.data,
+    providesTags: ["OwnPost"],
   }),
   getOnePost: builder.query({
     query: (id) => `posts/${id}`,
     transformResponse: (response) => response.data,
     providesTags: (result) => (result ? [{ type: "Post", id: result.id }] : []),
   }),
+  getPostToEdit: builder.query({
+    query: (id) => `posts/write/${id}`,
+    transformResponse: (response) => response.data,
+    providesTags: ["OwnPost"],
+  }),
   getComments: builder.query({
     query: ({ postId, limitComments }) =>
-      // `posts/${postId}/comments`,
       `posts/${postId}/comments?limitComments=${limitComments}`,
     transformResponse: (response) => response.data,
-    // providesTags: (result, error, { postId }) =>
-    //   result ? [{ type: "Comment", postId }] : [],
   }),
   createPost: builder.mutation({
     query: (data) => ({
@@ -24,10 +32,27 @@ export const postEndpoints = (builder) => ({
       body: data,
     }),
     transformResponse: (response) => response.data,
+    providesTags: ["OwnPost"],
   }),
-  updatePost: builder.mutation({
+  draftpost: builder.mutation({
+    query: (data) => ({
+      url: "posts/draft",
+      method: "POST",
+      body: data,
+    }),
+    transformResponse: (response) => response.data,
+  }),
+  publishPost: builder.mutation({
+    query: (data) => ({
+      url: "posts/publish",
+      method: "POST",
+      body: data,
+    }),
+    transformResponse: (response) => response.data,
+  }),
+  editPost: builder.mutation({
     query: ({ id, data }) => ({
-      url: `posts/${id}`,
+      url: `posts/write/${id}`,
       method: "PATCH",
       body: data,
     }),
@@ -78,5 +103,6 @@ export const postEndpoints = (builder) => ({
       url: `posts/${id}`,
       method: "DELETE",
     }),
+    invalidatesTags: ["OwnPost"],
   }),
 });

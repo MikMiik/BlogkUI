@@ -27,6 +27,7 @@
             }
         }
 
+
         // Quill editor styling
         :global {
             .ql-container {
@@ -127,10 +128,10 @@
                 }
 
                 img {
-                    max-width: 100%;
+                    max-width: 70%;
                     height: auto;
                     border-radius: 0.25rem;
-                    margin: 0.5rem 0;
+                    margin: auto;
                 }
             }
 
@@ -285,3 +286,5 @@
         }
     }
 }
+
+

@@ -18,6 +18,7 @@ const PostCard = ({
   excerpt,
   author,
   publishedAt,
+  status,
   readTime,
   topics,
   slug,
@@ -32,6 +33,7 @@ const PostCard = ({
   isBookmarked = false,
   showViewCount = true,
   showInteractions = true,
+  children,
   ...props
 }) => {
   const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
@@ -45,7 +47,6 @@ const PostCard = ({
   const [unlikePost] = useUnlikePostMutation();
   const [bookmarkPost] = useBookmarkPostMutation();
   const [unBookmarkPost] = useUnBookmarkPostMutation();
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -147,7 +148,13 @@ const PostCard = ({
     >
       {/* Featured Image */}
       <div className={styles.imageContainer}>
-        <Link to={`/blog/${slug}`}>
+        <Link
+          to={
+            status?.toLowerCase() === "published"
+              ? `/blog/${slug}`
+              : `/write/${slug}`
+          }
+        >
           <FallbackImage
             src={featuredImage}
             alt={title}
@@ -172,7 +179,14 @@ const PostCard = ({
 
         {/* Title */}
         <h3 className={styles.title}>
-          <Link to={`/blog/${slug}`} className={styles.titleLink}>
+          <Link
+            to={
+              status?.toLowerCase() === "published"
+                ? `/blog/${slug}`
+                : `/write/${slug}`
+            }
+            className={styles.titleLink}
+          >
             {title}
           </Link>
         </h3>
@@ -326,6 +340,7 @@ const PostCard = ({
           </div>
         )}
       </div>
+      {children}
     </Card>
   );
 };

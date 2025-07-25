@@ -11,10 +11,14 @@ export const postsApi = baseApi.injectEndpoints({
 
 export const {
   useGetAllPostsQuery,
+  useGetOwnPostsQuery,
   useGetOnePostQuery,
+  useGetPostToEditQuery,
   useGetCommentsQuery,
   useCreatePostMutation,
-  useUpdatePostMutation,
+  useDraftpostMutation,
+  usePublishPostMutation,
+  useEditPostMutation,
   useDeletePostMutation,
   useLikePostMutation,
   useUnlikePostMutation,

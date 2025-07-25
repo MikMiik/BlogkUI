@@ -52,6 +52,7 @@ const PostList = ({
               readTime={post.readTime}
               topics={post.topics}
               slug={post.slug}
+              status={post.status}
               isLiked={post.isLiked}
               isBookmarked={post.isBookmarked}
               featuredImage={post.thumbnail}

@@ -375,3 +375,90 @@
         margin-bottom: $spacing-4;
     }
 }
+
+// Confirm Modal
+.confirmOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: $z-modal;
+    padding: $spacing-4;
+    animation: fadeIn 0.2s ease-out;
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
+
+.confirmModal {
+    background-color: $surface-primary;
+    border-radius: $radius-lg;
+    padding: $spacing-6;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: $shadow-xl;
+    animation: modalSlideIn 0.2s ease-out;
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    @include mobile-only {
+        margin: $spacing-4;
+        padding: $spacing-4;
+    }
+}
+
+.confirmTitle {
+    @include heading-4;
+    margin: 0 0 $spacing-3 0;
+    color: $text-primary;
+}
+
+.confirmMessage {
+    @include body-base;
+    color: $text-secondary;
+    margin: 0 0 $spacing-6 0;
+    line-height: $leading-relaxed;
+}
+
+.confirmActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-3;
+
+    @include mobile-only {
+        flex-direction: column-reverse;
+        gap: $spacing-2;
+    }
+}
+
+.deleteConfirmButton {
+    background-color: $error-600 !important;
+
+    &:hover:not(:disabled) {
+        background-color: $error-700 !important;
+    }
+
+    &:active:not(:disabled) {
+        background-color: $error-700 !important;
+    }
+}

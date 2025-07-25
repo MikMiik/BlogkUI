@@ -336,8 +336,8 @@
 
 .replies {
     margin-top: $spacing-4;
-    padding-left: $spacing-6;
-    border-left: 2px solid $border-light;
+    // padding-left: $spacing-6;
+    // border-left: 2px solid $border-light;
 
     @include mobile-only {
         padding-left: $spacing-4;
