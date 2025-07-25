@@ -26,7 +26,20 @@ export const profileApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-
+      transformResponse: (response) => response.data,
+    }),
+    followProfile: builder.mutation({
+      query: (id) => ({
+        url: `profiles/${id}/follow`,
+        method: "POST",
+      }),
+      transformResponse: (response) => response.data,
+    }),
+    unfollowProfile: builder.mutation({
+      query: (id) => ({
+        url: `profiles/${id}/unfollow`,
+        method: "DELETE",
+      }),
       transformResponse: (response) => response.data,
     }),
     deleteProfile: builder.mutation({
@@ -43,5 +56,7 @@ export const {
   useGetOneProfileToEditQuery,
   useCreateProfileMutation,
   useUpdateProfileMutation,
+  useFollowProfileMutation,
+  useUnfollowProfileMutation,
   useDeleteProfileMutation,
 } = profileApi;

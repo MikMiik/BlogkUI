@@ -53,8 +53,6 @@ const WritePost = () => {
 
   useEffect(() => {
     if (isEditing && isSuccess) {
-      console.log(post);
-
       setFormData(post);
       setSelectedTopics(post.topics.map((topic) => topic.name));
       setImagePreview(post.thumbnail);
@@ -161,12 +159,14 @@ const WritePost = () => {
       };
 
       if (isEditing && slug) {
-        const res = await editPost({ id: slug, data: postData });
-        console.log(res);
+        await editPost({ id: slug, data: postData });
         return;
       }
       const { data } = await draftPost(postData);
-      setFormData((prev) => ({ ...prev, postId: data.postId }));
+
+      if (data) {
+        navigate(`/write/${data.slug}`);
+      }
     } catch (error) {
       console.error("Error saving post:", error);
     } finally {

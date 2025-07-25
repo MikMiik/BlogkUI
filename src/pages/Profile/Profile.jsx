@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthorInfo from "../../components/AuthorInfo/AuthorInfo";
 import PostList from "../../components/PostList/PostList";
@@ -10,7 +10,11 @@ import FallbackImage from "../../components/FallbackImage/FallbackImage";
 import ChatWindow from "../../components/ChatWindow/ChatWindow";
 
 import styles from "./Profile.module.scss";
-import { useGetOneProfileQuery } from "@/features/profileApi";
+import {
+  useFollowProfileMutation,
+  useGetOneProfileQuery,
+  useUnfollowProfileMutation,
+} from "@/features/profileApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const Profile = () => {
@@ -21,6 +25,9 @@ const Profile = () => {
   const [page, setPage] = useState(1);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [isFollowed, setIsFollowed] = useState(false);
+  const [followProfile] = useFollowProfileMutation();
+  const [unfollowProfile] = useUnfollowProfileMutation();
   const limit = 6;
   const currentUser = useCurrentUser();
   const {
@@ -34,7 +41,11 @@ const Profile = () => {
       refetchOnMountOrArgChange: true,
     }
   );
-
+  useEffect(() => {
+    if (isSuccessProfile && profile) {
+      setIsFollowed(profile.isFollowed);
+    }
+  }, [isSuccessProfile, profile]);
   if (isLoadingProfile) {
     return (
       <div className={styles.profile}>
@@ -58,7 +69,6 @@ const Profile = () => {
   if (isSuccessProfile) {
     const totalPages = Math.ceil(postsCount / limit);
     const isOwnProfile = currentUser?.username === profile.username;
-
     const handlePageChange = (page) => {
       setPage(page);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -69,6 +79,19 @@ const Profile = () => {
         year: "numeric",
         month: "long",
       });
+    };
+    const handleFollow = async () => {
+      try {
+        if (isFollowed) {
+          await unfollowProfile(username);
+        } else {
+          await followProfile(username);
+        }
+        setIsFollowed(!isFollowed);
+      } catch (error) {
+        console.error("Failed to follow:", error);
+        setIsFollowed(isFollowed);
+      }
     };
 
     const handleMessageClick = () => {
@@ -137,8 +160,12 @@ const Profile = () => {
                     </Button>
                   ) : (
                     <>
-                      <Button variant="primary" size="md">
-                        Follow
+                      <Button
+                        variant={!isFollowed ? "primary" : "secondary"}
+                        size="md"
+                        onClick={handleFollow}
+                      >
+                        {isFollowed ? "Followed" : "Follow"}
                       </Button>
                       <Button
                         variant="ghost"

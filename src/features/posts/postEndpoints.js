@@ -37,7 +37,7 @@ export const postEndpoints = (builder) => ({
       body: data,
     }),
     transformResponse: (response) => response.data,
-    providesTags: ["OwnPost"],
+    invalidatesTags: ["OwnPost"],
   }),
   draftpost: builder.mutation({
     query: (data) => ({
@@ -46,6 +46,7 @@ export const postEndpoints = (builder) => ({
       body: data,
     }),
     transformResponse: (response) => response.data,
+    invalidatesTags: ["OwnPost"],
   }),
   publishPost: builder.mutation({
     query: (data) => ({
@@ -54,6 +55,7 @@ export const postEndpoints = (builder) => ({
       body: data,
     }),
     transformResponse: (response) => response.data,
+    invalidatesTags: ["OwnPost"],
   }),
   editPost: builder.mutation({
     query: ({ id, data }) => ({
@@ -62,6 +64,7 @@ export const postEndpoints = (builder) => ({
       body: data,
     }),
     transformResponse: (response) => response.data,
+    invalidatesTags: ["OwnPost"],
   }),
   likePost: builder.mutation({
     query: ({ postId }) => ({

@@ -59,7 +59,7 @@ const PublishModal = ({
       ...formData,
       status: "published",
       isScheduled,
-      publishDate: isScheduled ? publishDate : null,
+      publishedAt: isScheduled ? publishDate : new Date().toISOString(),
     };
     onPublish(publishData);
   };
