@@ -6,28 +6,31 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { Input, Button } from "../../components";
-import styles from "./Login.module.scss";
 import * as yup from "yup";
-import loginSchema from "@/schemas/loginSchema";
-import { login, verifyEmailToken } from "@/services/authService";
 import { useDispatch, useSelector } from "react-redux";
+import styles from "./Login.module.scss";
+
+import { Input, Button } from "@/components";
+import { login, verifyEmailToken } from "@/services/authService";
 import { getCurrentUser } from "@/features/auth/authSlice";
+import loginSchema from "@/schemas/loginSchema";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [params] = useSearchParams();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const [params] = useSearchParams();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
+    rememberMe: true,
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchParams] = useSearchParams();
   const [isTokenValid, setIsTokenValid] = useState(null);
+
   const token = searchParams.get("token");
 
   useEffect(() => {
@@ -90,7 +93,7 @@ const Login = () => {
       if (validatedData) {
         const res = await login(formData);
         if (!res.success) {
-          setErrors({ submit: "Login error" });
+          setErrors({ submit: res.message || "Login error" });
         } else {
           setErrors({});
           localStorage.setItem("token", res.data.accessToken);
@@ -118,8 +121,8 @@ const Login = () => {
       {/* Header */}
       <div className={styles.header}>
         <h1 className={styles.title}>Welcome Back</h1>
-        {location.state?.message ? (
-          <p className={styles.loginSuccess}>{location.state.message}</p>
+        {location?.state?.message ? (
+          <p className={styles.loginSuccess}>{location.state?.message}</p>
         ) : (
           <p className={styles.subtitle}>
             Sign in to your account to continue reading and engaging with our

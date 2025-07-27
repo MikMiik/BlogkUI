@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Input, Button } from "@/components";
-import styles from "./Register.module.scss";
 import * as yup from "yup";
+
+import styles from "./Register.module.scss";
+import { Input, Button } from "@/components";
 import registerSchema from "@/schemas/registerSchema";
 import { register } from "@/services/authService";
 
@@ -44,7 +45,6 @@ const Register = () => {
       });
       if (validatedData) {
         const res = await register(formData, { withCredentials: true });
-        console.log(res);
         if (!res.success) {
           for (let path in res.message) {
             setErrors((prev) => ({
@@ -52,12 +52,11 @@ const Register = () => {
               [path]: res.message[path],
             }));
           }
-          console.log(errors);
         } else {
           navigate("/login", {
             replace: true,
             state: {
-              message: res.message,
+              message: res.data.message,
             },
           });
         }

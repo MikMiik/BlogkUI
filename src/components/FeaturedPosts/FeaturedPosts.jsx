@@ -42,7 +42,6 @@ const FeaturedPosts = ({
   }
 
   const displayPosts = posts.slice(0, maxPosts);
-  console.log(displayPosts);
 
   return (
     <section
