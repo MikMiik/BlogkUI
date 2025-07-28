@@ -40,9 +40,11 @@ const ForgotPassword = () => {
         abortEarly: false,
       });
       if (validatedData) {
-        const { data } = await sendForgotEmail(formData);
-        setMessage(data.message);
+        await sendForgotEmail(formData);
         setIsSubmitted(true);
+        setMessage(
+          "If your email exists in our system, a password reset link has been sent."
+        );
       }
     } catch (err) {
       if (err instanceof yup.ValidationError) {
@@ -95,7 +97,6 @@ const ForgotPassword = () => {
         <div className={styles.successMessage}>
           <h1 className={styles.successTitle}>Check Your Email</h1>
           <p className={styles.successDescription}>
-            {/* If that email exists, a reset link has been sent{" "} */}
             {message}
             <br />
             <strong>{formData.email}</strong>

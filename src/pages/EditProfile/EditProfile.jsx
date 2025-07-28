@@ -416,7 +416,7 @@ const EditProfile = () => {
                 </div>
 
                 <Input
-                  label="Professional Title"
+                  label="Role"
                   value={formData.role}
                   onChange={(e) => handleInputChange("role", e.target.value)}
                   placeholder="e.g. Senior Frontend Developer"
