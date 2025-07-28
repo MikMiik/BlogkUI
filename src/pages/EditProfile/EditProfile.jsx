@@ -16,7 +16,7 @@ import profileSchema from "@/schemas/profileShema";
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [headerMessage, setHeaderMessage] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -252,13 +252,17 @@ const EditProfile = () => {
             formDataToSend.append("coverImage", imageFiles.coverImage);
           }
 
-          await editProfile({
+          const res = await editProfile({
             id: currentUser.id,
             data: formDataToSend,
-          });
-          navigate(`/profile/${formData.username}/edit`, {
-            state: { message: "Profile updated successfully!" },
-          });
+          }).unwrap();
+
+          if (res.success) {
+            setHeaderMessage(res.data.message);
+          } else {
+            setHeaderMessage("Edit error");
+          }
+
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       } catch (err) {
@@ -291,8 +295,8 @@ const EditProfile = () => {
               ← Back
             </Button>
             <h1>Edit Profile</h1>
-            {location.state?.message ? (
-              <p className={styles.editSuccess}>{location.state.message}</p>
+            {headerMessage ? (
+              <p className={styles.editSuccess}>{headerMessage}</p>
             ) : (
               <p>Update your profile information and settings</p>
             )}

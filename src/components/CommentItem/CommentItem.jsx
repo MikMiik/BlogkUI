@@ -100,12 +100,12 @@ const CommentItem = ({
 
   const handleLike = async () => {
     if (onLike && isLiked) {
-      await unlikeComment({ commentId: id });
+      await unlikeComment(id);
       setLikesCount((prev) => (prev -= 1));
       onLike(id);
     }
     if (onLike && !isLiked) {
-      await likeComment({ commentId: id });
+      await likeComment(id);
       setLikesCount((prev) => (prev += 1));
       onLike(id);
     }
@@ -242,7 +242,14 @@ const CommentItem = ({
 
           {/* Comment text */}
           <div className={styles.text}>
-            <p>{content}</p>
+            {typeof content === "string" ? (
+              <div
+                className={styles.htmlContent}
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            ) : (
+              content
+            )}
           </div>
 
           {/* Actions */}

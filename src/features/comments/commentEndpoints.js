@@ -15,21 +15,15 @@ export const commentEndpoints = (builder) => ({
     }),
   }),
   likeComment: builder.mutation({
-    query: ({ commentId }) => ({
+    query: (commentId) => ({
       url: `comments/${commentId}/like`,
       method: "POST",
-      body: {
-        commentId,
-      },
     }),
   }),
   unlikeComment: builder.mutation({
-    query: ({ commentId }) => ({
+    query: (commentId) => ({
       url: `comments/${commentId}/unlike`,
       method: "DELETE",
-      body: {
-        commentId,
-      },
     }),
   }),
   deleteComment: builder.mutation({

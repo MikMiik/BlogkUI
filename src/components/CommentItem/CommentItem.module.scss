@@ -90,6 +90,8 @@
         margin: 0;
         word-wrap: break-word;
     }
+
+   
 }
 
 // Actions Dropdown
@@ -429,4 +431,7 @@
     &:active:not(:disabled) {
         background-color: $error-700 !important;
     }
+}
+.mentionTag {
+  color: $primary-600;
 }

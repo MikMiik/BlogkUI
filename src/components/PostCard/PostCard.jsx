@@ -73,16 +73,11 @@ const PostCard = ({
 
     try {
       if (optimisticLiked) {
-        await unlikePost({
-          postId,
-        });
+        await unlikePost(postId);
       } else {
-        await likePost({
-          postId,
-        });
+        await likePost(postId);
       }
     } catch (error) {
-      // Revert on error
       setOptimisticLiked(optimisticLiked);
       setOptimisticLikes(optimisticLikes);
       console.error("Failed to toggle like:", error);
@@ -96,18 +91,13 @@ const PostCard = ({
 
     setBookmarkingInProgress(true);
 
-    // Optimistic update
     setOptimisticBookmarked(!optimisticBookmarked);
 
     try {
       if (optimisticBookmarked) {
-        await unBookmarkPost({
-          postId,
-        });
+        await unBookmarkPost(postId);
       } else {
-        await bookmarkPost({
-          postId,
-        });
+        await bookmarkPost(postId);
       }
     } catch (error) {
       setOptimisticBookmarked(optimisticBookmarked);

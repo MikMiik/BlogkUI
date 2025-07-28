@@ -25,4 +25,5 @@ export const {
   useUnlikePostMutation,
   useBookmarkPostMutation,
   useUnBookmarkPostMutation,
+  useClearBookmarksMutation,
 } = postsApi;

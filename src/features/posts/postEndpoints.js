@@ -24,6 +24,7 @@ export const postEndpoints = (builder) => ({
     query: ({ limit = 10, page = 1 }) =>
       `posts/bookmarks?limit=${limit}&page=${page}`,
     transformResponse: (response) => response.data,
+    providesTags: ["BookmarkPost"],
   }),
   getComments: builder.query({
     query: ({ postId, limitComments }) =>
@@ -67,45 +68,40 @@ export const postEndpoints = (builder) => ({
     invalidatesTags: ["OwnPost"],
   }),
   likePost: builder.mutation({
-    query: ({ postId }) => ({
+    query: (postId) => ({
       url: `posts/${postId}/like`,
       method: "POST",
-      body: {
-        postId,
-      },
     }),
     invalidatesTags: ["Post"],
   }),
   unlikePost: builder.mutation({
-    query: ({ postId }) => ({
+    query: (postId) => ({
       url: `posts/${postId}/unlike`,
       method: "DELETE",
-      body: {
-        postId,
-      },
     }),
     invalidatesTags: ["Post"],
   }),
   bookmarkPost: builder.mutation({
-    query: ({ postId }) => ({
+    query: (postId) => ({
       url: `posts/${postId}/bookmark`,
       method: "POST",
-      body: {
-        postId,
-      },
     }),
     invalidatesTags: ["Post"],
   }),
   unBookmarkPost: builder.mutation({
-    query: ({ postId }) => ({
+    query: (postId) => ({
       url: `posts/${postId}/unbookmark`,
       method: "DELETE",
-      body: {
-        postId,
-      },
     }),
     invalidatesTags: ["Post"],
   }),
+  clearBookmarks: builder.mutation({
+    query: () => ({
+      url: `posts/clear-bookmarks`,
+      method: "DELETE",
+    }),
+  }),
+  invalidatesTags: ["BookmarkPost"],
   deletePost: builder.mutation({
     query: (id) => ({
       url: `posts/${id}`,

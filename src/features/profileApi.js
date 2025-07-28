@@ -26,7 +26,6 @@ export const profileApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      transformResponse: (response) => response.data,
     }),
     followProfile: builder.mutation({
       query: (id) => ({

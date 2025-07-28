@@ -20,7 +20,6 @@ const WritePost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(slug);
-
   const [formData, setFormData] = useState({
     title: "",
     excerpt: "",
@@ -41,6 +40,7 @@ const WritePost = () => {
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [hasLoadedPost, setHasLoadedPost] = useState(false);
 
   const [draftPost] = useDraftpostMutation();
   const [publishPost] = usePublishPostMutation();
@@ -56,6 +56,7 @@ const WritePost = () => {
       setFormData(post);
       setSelectedTopics(post.topics.map((topic) => topic.name));
       setImagePreview(post.thumbnail);
+      setHasLoadedPost(true);
     }
   }, [isEditing, isSuccess, post]);
 
@@ -268,18 +269,20 @@ const WritePost = () => {
                 <label className={styles.label} htmlFor="content">
                   Content *
                 </label>
-                <RichTextEditor
-                  value={formData.content}
-                  onChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: value,
-                    }))
-                  }
-                  placeholder="Start writing your post content..."
-                  error={errors.content}
-                  className={styles.richTextEditor}
-                />
+                {(!isEditing || hasLoadedPost) && (
+                  <RichTextEditor
+                    value={formData.content}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: value,
+                      }))
+                    }
+                    placeholder="Start writing your post content..."
+                    error={errors.content}
+                    className={styles.richTextEditor}
+                  />
+                )}
               </div>
             </div>
           </div>
