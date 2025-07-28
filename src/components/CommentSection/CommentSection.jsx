@@ -1,5 +1,5 @@
 import { useState } from "react";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import CommentItem from "../CommentItem/CommentItem";
 import Button from "../Button/Button";
 import EmptyState from "../EmptyState/EmptyState";
@@ -237,30 +237,33 @@ const CommentSection = ({
   );
 };
 
-// CommentSection.propTypes = {
-//   comments: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-//       author: PropTypes.shape({
-//         name: PropTypes.string.isRequired,
-//         avatar: PropTypes.string.isRequired,
-//       }).isRequired,
-//       content: PropTypes.string.isRequired,
-//       createdAt: PropTypes.string.isRequired,
-//       likes: PropTypes.number,
-//       isLiked: PropTypes.bool,
-//       replies: PropTypes.array,
-//       isEdited: PropTypes.bool,
-//     })
-//   ),
-//   loading: PropTypes.bool,
-//   onAddComment: PropTypes.func,
-//   onReplyComment: PropTypes.func,
-//   onLikeComment: PropTypes.func,
-//   onEditComment: PropTypes.func,
-//   onDeleteComment: PropTypes.func,
-//   isAuthenticated: PropTypes.bool,
-//   className: PropTypes.string,
-// };
+CommentSection.propTypes = {
+  postId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+
+  commentsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      parentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      commenter: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+          .isRequired,
+        name: PropTypes.string.isRequired,
+        avatar: PropTypes.string,
+        username: PropTypes.string,
+      }).isRequired,
+      content: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
+        .isRequired,
+      createdAt: PropTypes.string.isRequired,
+      likesCount: PropTypes.number,
+      isLiked: PropTypes.bool,
+      isEdited: PropTypes.bool,
+    })
+  ).isRequired,
+
+  count: PropTypes.number,
+  loading: PropTypes.bool,
+  isAuthenticated: PropTypes.bool,
+  className: PropTypes.string,
+};
 
 export default CommentSection;

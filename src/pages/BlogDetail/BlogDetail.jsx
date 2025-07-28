@@ -70,8 +70,6 @@ const BlogDetail = () => {
     );
   }
   if (isSuccessPost) {
-    console.log(post);
-
     const handleLikePost = async () => {
       if (likingInProgress) return;
       setLikingInProgress(true);
@@ -119,7 +117,6 @@ const BlogDetail = () => {
       } finally {
         setBookmarkingInProgress(false);
       }
-      console.log("click bookmark");
     };
 
     return (

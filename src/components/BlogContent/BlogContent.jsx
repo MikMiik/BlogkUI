@@ -149,15 +149,25 @@ BlogContent.propTypes = {
   title: PropTypes.string.isRequired,
   content: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
   author: PropTypes.shape({
+    firstName: PropTypes.string.isRequired,
+    lastName: PropTypes.string.isRequired,
     avatar: PropTypes.string,
     username: PropTypes.string,
   }).isRequired,
   publishedAt: PropTypes.string.isRequired,
   updatedAt: PropTypes.string,
   readTime: PropTypes.number,
-  topic: PropTypes.string,
-  // tags: PropTypes.arrayOf(PropTypes.string),
-  // featuredImage: PropTypes.string,
+  topics: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ),
+  tags: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ),
+  thumbnail: PropTypes.string,
   loading: PropTypes.bool,
   className: PropTypes.string,
 };

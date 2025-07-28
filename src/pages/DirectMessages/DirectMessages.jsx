@@ -58,8 +58,6 @@ const DirectMessages = () => {
     channel.bind("new-message", function ({ data }) {
       setMessages((prev) => [...prev, data]);
       setConversations((prev) => {
-        console.log("run");
-
         return prev.map((conv) =>
           conv.id === parseInt(conversationId)
             ? {

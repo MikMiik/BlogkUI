@@ -335,30 +335,35 @@ const PostCard = ({
   );
 };
 
-// PostCard.propTypes = {
-//   title: PropTypes.string.isRequired,
-//   excerpt: PropTypes.string,
-//   author: PropTypes.shape({
-//     avatar: PropTypes.string,
-//     username: PropTypes.string,
-//   }).isRequired,
-//   publishedAt: PropTypes.string.isRequired,
-//   readTime: PropTypes.number,
-//   topic: PropTypes.array,
-//   slug: PropTypes.string,
-//   featuredImage: PropTypes.string,
-//   loading: PropTypes.bool,
-//   compact: PropTypes.bool,
-//   className: PropTypes.string,
-//   // New interaction props
-//   // likes: PropTypes.number,
-//   // views: PropTypes.number,
-//   isLiked: PropTypes.bool,
-//   isBookmarked: PropTypes.bool,
-//   showViewCount: PropTypes.bool,
-//   showInteractions: PropTypes.bool,
-//   onLike: PropTypes.func,
-//   onBookmark: PropTypes.func,
-// };
+PostCard.propTypes = {
+  postId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  title: PropTypes.string.isRequired,
+  excerpt: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  author: PropTypes.shape({
+    avatar: PropTypes.string,
+    username: PropTypes.string,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  publishedAt: PropTypes.string.isRequired,
+  status: PropTypes.string,
+  readTime: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  topics: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ),
+  slug: PropTypes.string.isRequired,
+  featuredImage: PropTypes.string,
+  loading: PropTypes.bool,
+  compact: PropTypes.bool,
+  className: PropTypes.string,
+  likesCount: PropTypes.number,
+  viewsCount: PropTypes.number,
+  isLiked: PropTypes.bool,
+  isBookmarked: PropTypes.bool,
+  showViewCount: PropTypes.bool,
+  showInteractions: PropTypes.bool,
+  children: PropTypes.node,
+};
 
 export default PostCard;

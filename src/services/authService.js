@@ -22,7 +22,6 @@ export const register = async (registerInfo, config) => {
 
 export const checkInfo = async (type, value) => {
   const res = await httpRequest.get(`auth/check-${type}?${type}=${value}`);
-  console.log(res);
   return res.data.exists;
 };
 

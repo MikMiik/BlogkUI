@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Button from "../Button/Button";
 import FallbackImage from "../FallbackImage/FallbackImage";
@@ -403,30 +403,54 @@ const CommentItem = ({
   );
 };
 
-// CommentItem.propTypes = {
-//     comment: PropTypes.shape({
-//         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-//             .isRequired,
-//         author: PropTypes.shape({
-//             name: PropTypes.string.isRequired,
-//             avatar: PropTypes.string.isRequired,
-//             username: PropTypes.string,
-//         }).isRequired,
-//         content: PropTypes.string.isRequired,
-//         createdAt: PropTypes.string.isRequired,
-//         likes: PropTypes.number,
-//         isLiked: PropTypes.bool,
-//         replies: PropTypes.array,
-//         isEdited: PropTypes.bool,
-//     }).isRequired,
-//     level: PropTypes.number,
-//     maxLevel: PropTypes.number,
-//     onReply: PropTypes.func,
-//     onLike: PropTypes.func,
-//     onEdit: PropTypes.func,
-//     onDelete: PropTypes.func,
-//     showActions: PropTypes.bool,
-//     className: PropTypes.string,
-// };
+CommentItem.propTypes = {
+  comment: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    commenter: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      name: PropTypes.string.isRequired,
+      avatar: PropTypes.string,
+      username: PropTypes.string,
+    }).isRequired,
+    content: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
+    createdAt: PropTypes.string.isRequired,
+    likesCount: PropTypes.number,
+    isLiked: PropTypes.bool,
+    isEdited: PropTypes.bool,
+    parentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
+
+  allComments: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      parentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      commenter: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+          .isRequired,
+        name: PropTypes.string.isRequired,
+        avatar: PropTypes.string,
+        username: PropTypes.string,
+      }).isRequired,
+      content: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
+        .isRequired,
+      createdAt: PropTypes.string.isRequired,
+      likesCount: PropTypes.number,
+      isLiked: PropTypes.bool,
+      isEdited: PropTypes.bool,
+    })
+  ),
+
+  postId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  level: PropTypes.number,
+  maxLevel: PropTypes.number,
+
+  onReply: PropTypes.func,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  onLike: PropTypes.func,
+
+  showActions: PropTypes.bool,
+  className: PropTypes.string,
+};
 
 export default CommentItem;

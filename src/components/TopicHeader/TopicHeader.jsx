@@ -77,10 +77,12 @@ TopicHeader.propTypes = {
     name: PropTypes.string.isRequired,
     description: PropTypes.string,
     icon: PropTypes.string,
+    image: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     postCount: PropTypes.number,
     createdAt: PropTypes.string,
   }),
   loading: PropTypes.bool,
+  postsCount: PropTypes.number,
   className: PropTypes.string,
 };
 

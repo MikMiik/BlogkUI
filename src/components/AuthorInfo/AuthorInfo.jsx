@@ -184,24 +184,24 @@ const AuthorInfo = ({
 
 AuthorInfo.propTypes = {
   author: PropTypes.shape({
-    // name: PropTypes.string.isRequired,
-    // username: PropTypes.string,
-    // title: PropTypes.string,
-    // bio: PropTypes.string,
+    name: PropTypes.string.isRequired,
+    username: PropTypes.string,
+    role: PropTypes.string,
+    introduction: PropTypes.string,
     avatar: PropTypes.string.isRequired,
-    // social: PropTypes.shape({
-    //     twitter: PropTypes.string,
-    //     github: PropTypes.string,
-    //     linkedin: PropTypes.string,
-    //     website: PropTypes.string,
-    // }),
+    website: PropTypes.string,
+    socials: PropTypes.shape({
+      twitter: PropTypes.string,
+      github: PropTypes.string,
+      linkedin: PropTypes.string,
+    }),
     postsCount: PropTypes.number,
     followersCount: PropTypes.number,
     followingCount: PropTypes.number,
   }),
-  // showSocial: PropTypes.bool,
-  // showBio: PropTypes.bool,
-  // showFollowButton: PropTypes.bool,
+  showSocial: PropTypes.bool,
+  showBio: PropTypes.bool,
+  showFollowButton: PropTypes.bool,
   loading: PropTypes.bool,
   className: PropTypes.string,
 };

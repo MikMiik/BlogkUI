@@ -1,4 +1,4 @@
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Badge from "../Badge/Badge";
 import EmptyState from "../EmptyState/EmptyState";
@@ -74,19 +74,20 @@ const TopicList = ({ topics = [], loading = false, className, ...props }) => {
   );
 };
 
-// TopicList.propTypes = {
-//   topics: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-//       name: PropTypes.string.isRequired,
-//       slug: PropTypes.string.isRequired,
-//       description: PropTypes.string,
-//       icon: PropTypes.string,
-//       postsCount: PropTypes.number,
-//     })
-//   ),
-//   loading: PropTypes.bool,
-//   className: PropTypes.string,
-// };
+TopicList.propTypes = {
+  topics: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      name: PropTypes.string.isRequired,
+      slug: PropTypes.string.isRequired,
+      description: PropTypes.string,
+      icon: PropTypes.string,
+      image: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+      postsCount: PropTypes.number,
+    })
+  ),
+  loading: PropTypes.bool,
+  className: PropTypes.string,
+};
 
 export default TopicList;
