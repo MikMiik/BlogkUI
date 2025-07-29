@@ -159,6 +159,9 @@
     font-weight: $font-medium;
     color: $text-primary;
     font-size: $text-sm;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .timestamp {

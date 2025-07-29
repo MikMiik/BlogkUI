@@ -8,6 +8,7 @@ import persistStore from "redux-persist/es/persistStore";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { baseApi } from "@/features/baseApi";
+import { searchApi } from "@/features/searchApi";
 
 const rootConfig = {
   key: "root",
@@ -18,6 +19,7 @@ const rootConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   [baseApi.reducerPath]: baseApi.reducer,
+  [searchApi.reducerPath]: searchApi.reducer,
 });
 
 const store = configureStore({
@@ -26,6 +28,7 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) => [
     ...getDefaultMiddleware({ serializableCheck: false }),
     baseApi.middleware,
+    searchApi.middleware,
     // postsApi.middleware,
     // topicsAPI.middleware,
     // ...getDefaultMiddleware trải mảng các middleware mặc định đc return từ getDefaultMiddleware

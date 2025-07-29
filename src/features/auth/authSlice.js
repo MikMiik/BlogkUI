@@ -5,6 +5,9 @@ const getCurrentUser = createAsyncThunk(
   "auth/getCurrentUser",
   async (_, thunkAPI) => {
     const res = await authService.me();
+    if (res.status === 302) {
+      window.location.href = "/login";
+    }
     if (res.success) {
       return res.data;
     } else {

@@ -83,7 +83,7 @@ TopicList.propTypes = {
       description: PropTypes.string,
       icon: PropTypes.string,
       image: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-      postsCount: PropTypes.number,
+      postsCount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     })
   ),
   loading: PropTypes.bool,

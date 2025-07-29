@@ -7,10 +7,11 @@ import styles from "./DirectMessages.module.scss";
 import socketClient from "@/utils/socketClient";
 import {
   useCreateMessageMutation,
-  useGetAllConversationQuery,
-  useGetOneConversationQuery,
+  useGetConversationMessagesQuery,
 } from "@/features/messageApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
+import { useGetAllConversationQuery } from "@/features/conversationApi";
+import GroupAvatar from "@/components/GroupAvatar/GroupAvatar";
 
 const DirectMessages = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,26 +21,46 @@ const DirectMessages = () => {
   const messagesEndRef = useRef(null);
   const conversationId = searchParams.get("conversationId");
   const currentUser = useCurrentUser();
-  const { data, isSuccess } = useGetAllConversationQuery({
+
+  const { data, isSuccess } = useGetAllConversationQuery(currentUser, {
     refetchOnMountOrArgChange: true,
   });
 
   const { data: convMessages, isSuccess: convMessagesSuccess } =
-    useGetOneConversationQuery(conversationId, {
+    useGetConversationMessagesQuery(conversationId, {
       skip: !conversationId,
       refetchOnMountOrArgChange: true,
     });
   const [createMessage] = useCreateMessageMutation();
-  // Mock data - in real app this would come from API
+
   const [conversations, setConversations] = useState([]);
 
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (isSuccess && data) {
-      setConversations(data);
-      setSelectedConversation(
-        data.find((c) => c.id === parseInt(conversationId))
-      );
+      // Không mutate object gốc, tạo bản sao mới cho mỗi conversation
+      const processed = data.map((conv) => {
+        let newConv = { ...conv };
+        if (newConv.isGroup) {
+          // Xử lý groupName
+          if (!newConv.groupName) {
+            const names = (newConv.participants || [])
+              .slice(0, 3)
+              .map((p) => p.name)
+              .join(", ");
+            newConv.groupName = `Group of ${names}`;
+          }
+          // Xử lý groupAvatar
+          if (!newConv.groupAvatar) {
+            newConv.groupAvatar = (newConv.participants || [])
+              .slice(0, 3)
+              .map((p) => p.avatar)
+              .filter(Boolean);
+          }
+        }
+        return newConv;
+      });
+      setConversations(processed);
     }
   }, [isSuccess, data, conversationId]);
   useEffect(() => {
@@ -62,13 +83,11 @@ const DirectMessages = () => {
           conv.id === parseInt(conversationId)
             ? {
                 ...conv,
-                lastMessage: [
-                  {
-                    content: data.content,
-                    createdAt: new Date(),
-                    senderId: data.author.id,
-                  },
-                ],
+                lastMessage: {
+                  content: data.content,
+                  createdAt: new Date(),
+                  senderId: data.author.id,
+                },
               }
             : conv
         );
@@ -134,21 +153,25 @@ const DirectMessages = () => {
     return parsedDate.toLocaleDateString("vi-VN");
   };
 
-  if (isSuccess && data) {
-    const filteredConversations = conversations.filter((conv) =>
-      //   conv.participant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      //   conv.participant.username
-      //     .toLowerCase()
-      //     .includes(searchQuery.toLowerCase())
-      conv.participants.some((participant) => {
-        const fullName = participant.name;
-        const username = participant.username.toLowerCase();
-        const query = searchQuery.toLowerCase();
-        return fullName.includes(query) || username.includes(query);
-      })
-    );
-    console.log(conversations);
-    console.log(filteredConversations);
+  if (isSuccess && data && conversations) {
+    const filteredConversations = conversations.filter((conv) => {
+      const query = searchQuery.toLowerCase();
+      // Nếu là group, tìm theo groupName hoặc tên thành viên
+      if (conv.isGroup) {
+        const groupName = (conv.groupName || "").toLowerCase();
+        const memberNames = (conv.participants || [])
+          .map((p) => (p.name || "").toLowerCase())
+          .join(" ");
+        return groupName.includes(query) || memberNames.includes(query);
+      }
+      // Nếu không phải group, tìm theo tên hoặc username của participant
+      if (conv.participant) {
+        const name = (conv.participant.name || "").toLowerCase();
+        const username = (conv.participant.username || "").toLowerCase();
+        return name.includes(query) || username.includes(query);
+      }
+      return false;
+    });
 
     return (
       <div className={styles.container}>
@@ -194,11 +217,15 @@ const DirectMessages = () => {
                   onClick={() => handleConversationSelect(conversation)}
                 >
                   <div className={styles.avatarContainer}>
-                    <FallbackImage
-                      src={conversation.participant.avatar}
-                      alt={conversation.participant.name}
-                      className={styles.avatar}
-                    />
+                    {conversation.groupAvatar ? (
+                      <GroupAvatar avatars={conversation.groupAvatar} />
+                    ) : (
+                      <FallbackImage
+                        src={conversation.participant?.avatar}
+                        alt={conversation.participant?.name}
+                        className={styles.avatar}
+                      />
+                    )}
                     {conversation.isOnline && (
                       <div className={styles.onlineIndicator} />
                     )}
@@ -207,15 +234,17 @@ const DirectMessages = () => {
                   <div className={styles.conversationContent}>
                     <div className={styles.conversationHeader}>
                       <span className={styles.participantName}>
-                        {conversation.participant.name}
+                        {conversation.groupName
+                          ? conversation.groupName
+                          : conversation.participant?.name}
                       </span>
                       <span className={styles.timestamp}>
-                        {formatTime(conversation.lastMessage[0]?.createdAt)}
+                        {formatTime(conversation.lastMessage?.createdAt)}
                       </span>
                     </div>
                     <div className={styles.lastMessage}>
                       <span className={styles.messageText}>
-                        {conversation.lastMessage[0]?.content}
+                        {conversation.lastMessage?.content}
                       </span>
                       {conversation.unreadCount > 0 && (
                         <span className={styles.unreadBadge}>
@@ -236,14 +265,20 @@ const DirectMessages = () => {
                 {/* Messages Header */}
                 <div className={styles.messagesHeader}>
                   <div className={styles.participantInfo}>
-                    <FallbackImage
-                      src={selectedConversation.participant.avatar}
-                      alt={selectedConversation.participant.name}
-                      className={styles.headerAvatar}
-                    />
+                    {selectedConversation.groupAvatar ? (
+                      <GroupAvatar avatars={selectedConversation.groupAvatar} />
+                    ) : (
+                      <FallbackImage
+                        src={selectedConversation.participant?.avatar}
+                        alt={selectedConversation.participant?.name}
+                        className={styles.avatar}
+                      />
+                    )}
                     <div>
                       <h2 className={styles.participantName}>
-                        {selectedConversation.participant.name}
+                        {selectedConversation.groupName
+                          ? selectedConversation.groupName
+                          : selectedConversation.participant?.name}
                       </h2>
                       <span className={styles.participantStatus}>
                         {selectedConversation.isOnline ? "Online" : "Offline"}
@@ -283,7 +318,7 @@ const DirectMessages = () => {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder={`Message ${selectedConversation.participant.name}...`}
+                      placeholder={`Message ${selectedConversation.participant?.name}...`}
                       className={styles.messageInput}
                       rows={1}
                     />

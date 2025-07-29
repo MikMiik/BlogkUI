@@ -5,6 +5,7 @@ import FullscreenLayout from "../layouts/FullscreenLayout/FullscreenLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import Loading from "./Loading/Loading";
 import ErrorBoundary from "./ErrorBoundary/ErrorBoundary";
+import { ProtectedRoute } from ".";
 
 // import { ProtectedRoute } from ".";
 
@@ -50,17 +51,59 @@ const AppRoutes = () => {
             <Route path="topics/:slug" element={<Topic />} />
             <Route path="blog/:slug" element={<BlogDetail />} />
             <Route path="profile/:username" element={<Profile />} />
-            <Route path="profile/:username/edit" element={<EditProfile />} />
-            <Route path="my-posts" element={<MyPosts />} />
-            <Route path="bookmarks" element={<Bookmarks />} />
-            <Route path="settings" element={<Settings />} />
+            <Route
+              path="profile/:username/edit"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-posts"
+              element={
+                <ProtectedRoute>
+                  <MyPosts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="bookmarks"
+              element={
+                <ProtectedRoute>
+                  <Bookmarks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Fullscreen Layout Routes */}
           <Route path="/" element={<FullscreenLayout />}>
             <Route path="write" element={<WritePost />} />
-            <Route path="write/:slug" element={<WritePost />} />
-            <Route path="messages" element={<DirectMessages />} />
+            <Route
+              path="write/:slug"
+              element={
+                <ProtectedRoute>
+                  <WritePost />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="messages"
+              element={
+                <ProtectedRoute>
+                  <DirectMessages />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Auth Routes */}

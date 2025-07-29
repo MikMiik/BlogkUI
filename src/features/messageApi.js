@@ -2,14 +2,11 @@ import { baseApi } from "./baseApi";
 
 export const messageApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllConversation: builder.query({
-      query: () => `messages`,
+    getConversationMessages: builder.query({
+      query: (conversationId) => `messages?conversationId=${conversationId}`,
       transformResponse: (response) => response.data,
     }),
-    getOneConversation: builder.query({
-      query: (conversationId) => `messages/${conversationId}`,
-      transformResponse: (response) => response.data,
-    }),
+
     createMessage: builder.mutation({
       query: (data) => ({
         url: "messages",
@@ -21,8 +18,5 @@ export const messageApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetAllConversationQuery,
-  useGetOneConversationQuery,
-  useCreateMessageMutation,
-} = messageApi;
+export const { useGetConversationMessagesQuery, useCreateMessageMutation } =
+  messageApi;

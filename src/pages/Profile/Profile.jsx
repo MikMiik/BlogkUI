@@ -151,13 +151,22 @@ const Profile = () => {
 
                 <div className={styles.actions}>
                   {isOwnProfile ? (
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      onClick={() => navigate(`/profile/${username}/edit`)}
-                    >
-                      Edit Profile
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        onClick={() => navigate(`/profile/${username}/edit`)}
+                      >
+                        Edit Profile
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="md"
+                        onClick={() => navigate(`/messages`)}
+                      >
+                        Message
+                      </Button>
+                    </>
                   ) : (
                     <>
                       <Button

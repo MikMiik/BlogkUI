@@ -45,6 +45,7 @@
 .heroContent {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
     gap: $spacing-12;
     align-items: center;
     position: relative;
@@ -52,6 +53,7 @@
 
     @include tablet-down {
         grid-template-columns: 1fr;
+        grid-template-rows: none;
         gap: $spacing-8;
         text-align: center;
     }
@@ -62,8 +64,44 @@
 }
 
 .heroText {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
     @include tablet-down {
         order: 2;
+        grid-column: auto;
+        grid-row: auto;
+    }
+}
+
+.heroSearch {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 1.5rem 0;
+
+    @include tablet-down {
+        margin: 1.5rem 0 0 0;
+        grid-column: auto;
+        grid-row: auto;
+    }
+    @include mobile-only {
+        margin: 1rem 0 0 0;
+    }
+}
+
+.heroVisual {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @include tablet-down {
+        order: 1;
+        grid-column: auto;
+        grid-row: auto;
     }
 }
 
@@ -117,16 +155,6 @@
     @include mobile-only {
         flex-direction: column;
         gap: $spacing-3;
-    }
-}
-
-.heroVisual {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    @include tablet-down {
-        order: 1;
     }
 }
 

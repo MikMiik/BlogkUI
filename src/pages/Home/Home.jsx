@@ -3,6 +3,7 @@ import { TopicList, FeaturedPosts, PostList, Button } from "../../components";
 import styles from "./Home.module.scss";
 import { useGetAllPostsQuery } from "@/features/posts/postsApi";
 import { useGetAllTopicsQuery } from "@/features/topicsApi";
+import SearchInput from "@/components/SearchInput/SearchInput";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
@@ -69,6 +70,9 @@ const Home = () => {
                   </Button>
                 </div>
               </div>
+              <div className={styles.heroSearch}>
+                <SearchInput />
+              </div>
               <div className={styles.heroVisual}>
                 <div className={styles.heroCard}>
                   <div className={styles.heroCardHeader}>
@@ -78,6 +82,7 @@ const Home = () => {
                       <span></span>
                     </div>
                   </div>
+
                   <div className={styles.heroCardContent}>
                     <div className={styles.heroCode}>
                       <div className={styles.codeLine}>
