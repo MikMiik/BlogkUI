@@ -8,7 +8,7 @@ import styles from "./Bookmarks.module.scss";
 import {
   useClearBookmarksMutation,
   useGetBookmarkPostsQuery,
-} from "@/features/posts/postsApi";
+} from "@/features/posts/postsAPI";
 
 const Bookmarks = () => {
   const [bookmarks, setBookmarks] = useState([]);

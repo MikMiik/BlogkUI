@@ -14,7 +14,7 @@ import {
   useEditPostMutation,
   useGetPostToEditQuery,
   usePublishPostMutation,
-} from "@/features/posts/postsApi";
+} from "@/features/posts/postsAPI";
 
 const WritePost = () => {
   const { slug } = useParams();

@@ -14,7 +14,7 @@ import {
   useLikePostMutation,
   useUnBookmarkPostMutation,
   useUnlikePostMutation,
-} from "@/features/posts/postsApi";
+} from "@/features/posts/postsAPI";
 import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const BlogDetail = () => {

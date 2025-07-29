@@ -9,7 +9,7 @@ import styles from "./MyPosts.module.scss";
 import {
   useDeletePostMutation,
   useGetOwnPostsQuery,
-} from "@/features/posts/postsApi";
+} from "@/features/posts/postsAPI";
 
 const MyPosts = () => {
   const {

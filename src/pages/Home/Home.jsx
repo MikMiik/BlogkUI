@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { TopicList, FeaturedPosts, PostList, Button } from "../../components";
 import styles from "./Home.module.scss";
-import { useGetAllPostsQuery } from "@/features/posts/postsApi";
+import { useGetAllPostsQuery } from "@/features/posts/postsAPI";
 import { useGetAllTopicsQuery } from "@/features/topicsApi";
 import SearchInput from "@/components/SearchInput/SearchInput";
 

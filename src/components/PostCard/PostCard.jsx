@@ -10,7 +10,7 @@ import {
   useLikePostMutation,
   useUnBookmarkPostMutation,
   useUnlikePostMutation,
-} from "@/features/posts/postsApi";
+} from "@/features/posts/postsAPI";
 
 const PostCard = ({
   postId,
