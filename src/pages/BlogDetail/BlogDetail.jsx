@@ -14,7 +14,7 @@ import {
   useLikePostMutation,
   useUnBookmarkPostMutation,
   useUnlikePostMutation,
-} from "@/features/posts/postsAPI";
+} from "@/features/posts/postsApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
 
 const BlogDetail = () => {
@@ -77,13 +77,9 @@ const BlogDetail = () => {
       setLikes(isLiked ? likes - 1 : likes + 1);
       try {
         if (isLiked) {
-          await unlikePost({
-            postId: post.id,
-          });
+          await unlikePost(post.id);
         } else {
-          await likePost({
-            postId: post.id,
-          });
+          await likePost(post.id);
         }
       } catch (error) {
         setIsLiked(isLiked);
@@ -103,13 +99,9 @@ const BlogDetail = () => {
 
       try {
         if (isBookmarked) {
-          await unBookmarkPost({
-            postId: post.id,
-          });
+          await unBookmarkPost(post.id);
         } else {
-          await bookmarkPost({
-            postId: post.id,
-          });
+          await bookmarkPost(post.id);
         }
       } catch (error) {
         setIsBookmarked(isBookmarked);

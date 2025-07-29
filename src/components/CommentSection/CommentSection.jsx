@@ -40,7 +40,7 @@ const CommentSection = ({
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(commentsData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [commentCount, setCommentCount] = useState(count);
   const [createComment] = useCreateCommentMutation();
   const [updateComment] = useUpdateCommentMutation();
   const [deleteComment] = useDeleteCommentMutation();
@@ -88,6 +88,7 @@ const CommentSection = ({
         content: newComment,
       }).unwrap();
       setComments((prev) => [res, ...prev]);
+      setCommentCount((prev) => prev + 1);
       setNewComment("");
     } catch (error) {
       console.error("Failed to add comment:", error);
@@ -111,6 +112,7 @@ const CommentSection = ({
     try {
       await deleteComment({ id: commentId });
       setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      setCommentCount((prev) => prev - 1);
     } catch (error) {
       console.error("Failed to delete comment:", error);
     }
@@ -162,7 +164,7 @@ const CommentSection = ({
       {...props}
     >
       <div className={styles.header}>
-        <h2 className={styles.title}>Comments ({count})</h2>
+        <h2 className={styles.title}>Comments ({commentCount})</h2>
       </div>
 
       {/* Comment Form */}

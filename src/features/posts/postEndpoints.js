@@ -68,10 +68,12 @@ export const postEndpoints = (builder) => ({
     invalidatesTags: ["OwnPost"],
   }),
   likePost: builder.mutation({
-    query: (postId) => ({
-      url: `posts/${postId}/like`,
-      method: "POST",
-    }),
+    query: (postId) => {
+      return {
+        url: `posts/${postId}/like`,
+        method: "POST",
+      };
+    },
     invalidatesTags: ["Post"],
   }),
   unlikePost: builder.mutation({

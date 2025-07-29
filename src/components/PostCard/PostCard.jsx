@@ -10,7 +10,7 @@ import {
   useLikePostMutation,
   useUnBookmarkPostMutation,
   useUnlikePostMutation,
-} from "@/features/posts/postsAPI";
+} from "@/features/posts/postsApi";
 
 const PostCard = ({
   postId,
@@ -55,6 +55,7 @@ const PostCard = ({
       day: "numeric",
     });
   };
+
   const sanitizedExcerpt =
     typeof excerpt === "string"
       ? excerpt.replace(/<h1([^>]*)>/g, "<p$1>").replace(/<\/h1>/g, "</p>")
