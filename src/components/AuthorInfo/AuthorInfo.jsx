@@ -3,16 +3,50 @@ import { Link } from "react-router-dom";
 import Button from "../Button/Button";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import styles from "./AuthorInfo.module.scss";
+import {
+  useFollowProfileMutation,
+  useUnfollowProfileMutation,
+} from "@/features/profileApi";
+import { useState } from "react";
 
 const AuthorInfo = ({
   author,
   showSocial = true,
   showBio = true,
   showFollowButton = true,
-  loading = false,
   className,
+  loading = false,
   ...props
 }) => {
+  const {
+    name,
+    introduction,
+    username,
+    role,
+    avatar,
+    website,
+    socials = {},
+    postsCount,
+    followersCount,
+    followingCount,
+  } = author;
+  const [follow] = useFollowProfileMutation();
+  const [unfollow] = useUnfollowProfileMutation();
+  const [isFollowed, setIsFollowed] = useState(author.isFollowed || false);
+  const handleFollow = async () => {
+    try {
+      if (isFollowed) {
+        await unfollow(username);
+      } else {
+        await follow(username);
+      }
+      setIsFollowed(!isFollowed);
+    } catch (error) {
+      console.error("Failed to follow:", error);
+      setIsFollowed(isFollowed);
+    }
+  };
+
   if (loading) {
     return (
       <div className={`${styles.authorInfo} ${className || ""}`} {...props}>
@@ -32,18 +66,6 @@ const AuthorInfo = ({
   if (!author) {
     return null;
   }
-
-  const {
-    name,
-    introduction,
-    role,
-    avatar,
-    website,
-    socials = {},
-    postsCount,
-    followersCount,
-    followingCount,
-  } = author;
 
   return (
     <div className={`${styles.authorInfo} ${className || ""}`} {...props}>
@@ -86,8 +108,12 @@ const AuthorInfo = ({
 
         {showFollowButton && (
           <div className={styles.action}>
-            <Button size="sm" variant="primary">
-              Follow
+            <Button
+              variant={!isFollowed ? "primary" : "secondary"}
+              size="md"
+              onClick={handleFollow}
+            >
+              {isFollowed ? "Followed" : "Follow"}
             </Button>
           </div>
         )}

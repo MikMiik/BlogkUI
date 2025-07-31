@@ -21,8 +21,8 @@ const DirectMessages = () => {
   const messagesEndRef = useRef(null);
   const conversationId = searchParams.get("conversationId");
   const currentUser = useCurrentUser();
-
-  const { data, isSuccess } = useGetAllConversationQuery(currentUser, {
+  const [conversations, setConversations] = useState([]);
+  const { data, isSuccess } = useGetAllConversationQuery({
     refetchOnMountOrArgChange: true,
   });
 
@@ -33,12 +33,9 @@ const DirectMessages = () => {
     });
   const [createMessage] = useCreateMessageMutation();
 
-  const [conversations, setConversations] = useState([]);
-
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (isSuccess && data) {
-      // Không mutate object gốc, tạo bản sao mới cho mỗi conversation
       const processed = data.map((conv) => {
         let newConv = { ...conv };
         if (newConv.isGroup) {
@@ -62,7 +59,7 @@ const DirectMessages = () => {
       });
       setConversations(processed);
     }
-  }, [isSuccess, data, conversationId]);
+  }, [isSuccess, data]);
   useEffect(() => {
     if (convMessagesSuccess && convMessages) {
       setMessages(convMessages);
@@ -75,33 +72,48 @@ const DirectMessages = () => {
   }, [messages, selectedConversation]);
 
   useEffect(() => {
-    const channel = socketClient.subscribe(`conversation-${conversationId}`);
-    channel.bind("new-message", function ({ data }) {
-      setMessages((prev) => [...prev, data]);
-      setConversations((prev) => {
-        return prev.map((conv) =>
-          conv.id === parseInt(conversationId)
-            ? {
-                ...conv,
-                lastMessage: {
-                  content: data.content,
-                  createdAt: new Date(),
-                  senderId: data.author.id,
-                },
-              }
-            : conv
+    if (!conversations.length) return;
+
+    // Lưu các channel để unsubscribe sau này
+    const channels = conversations.map((conv) => {
+      const channel = socketClient.subscribe(`conversation-${conv.id}`);
+      channel.bind("new-message", (newMessage) => {
+        if (conv.id === selectedConversation?.id) {
+          setMessages((prev) => {
+            return [...prev, newMessage];
+          });
+        }
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id !== newMessage.conversationId) return c;
+            if (selectedConversation?.id === c.id) {
+              return {
+                ...c,
+                lastMessage: newMessage,
+                unreadCount: 0,
+              };
+            }
+            return {
+              ...c,
+              lastMessage: newMessage,
+              unreadCount: (c.unreadCount || 0) + 1,
+            };
+          })
         );
       });
+      return channel;
     });
 
     return () => {
-      channel.unsubscribe(`conversation-${conversationId}`);
-      channel.unbind("new-message");
+      channels.forEach((channel) => {
+        channel.unsubscribe(channel.name);
+        channel.unbind_all();
+      });
     };
-  }, [conversationId]);
+  }, [conversations, selectedConversation?.id]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView();
   };
 
   const markAsRead = (conversationId) => {
@@ -122,7 +134,7 @@ const DirectMessages = () => {
     if (!newMessage.trim() || !selectedConversation) return;
     await createMessage({
       content: newMessage.trim(),
-      conversationId,
+      conversationId: selectedConversation.id,
     });
 
     setNewMessage("");
@@ -165,13 +177,14 @@ const DirectMessages = () => {
         return groupName.includes(query) || memberNames.includes(query);
       }
       // Nếu không phải group, tìm theo tên hoặc username của participant
-      if (conv.participant) {
+      if (!conv.isGroup && conv.participant) {
         const name = (conv.participant.name || "").toLowerCase();
         const username = (conv.participant.username || "").toLowerCase();
         return name.includes(query) || username.includes(query);
       }
       return false;
     });
+    // console.log(filteredConversations);
 
     return (
       <div className={styles.container}>

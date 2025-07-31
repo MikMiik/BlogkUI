@@ -1,8 +1,6 @@
 import { baseApi } from "./baseApi";
 
 export const topicsApi = baseApi.injectEndpoints({
-  // reducerPath: "topicsAPI",
-  // baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL }),
   endpoints: (builder) => ({
     getAllTopics: builder.query({
       query: () => `topics`,

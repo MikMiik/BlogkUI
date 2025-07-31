@@ -4,7 +4,7 @@ export const profileApi = baseApi.injectEndpoints({
   reducerPath: "profileApi",
   endpoints: (builder) => ({
     getOneProfile: builder.query({
-      query: ({ username, page, limit }) =>
+      query: ({ username, page = 1, limit = 10 }) =>
         `profiles/${username}?page=${page}&limit=${limit}`,
       transformResponse: (response) => response.data,
     }),
