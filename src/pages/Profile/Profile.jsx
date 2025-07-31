@@ -394,6 +394,7 @@ const Profile = () => {
         {!isOwnProfile && (
           <ChatWindow
             user={{
+              id: profile.id,
               name: profile.name,
               avatar: profile.avatar,
               username: profile.username,

@@ -10,7 +10,10 @@ import {
   useGetConversationMessagesQuery,
 } from "@/features/messageApi";
 import { useCurrentUser } from "@/utils/useCurrentUser";
-import { useGetAllConversationQuery } from "@/features/conversationApi";
+import {
+  useGetAllConversationQuery,
+  useMarkReadMutation,
+} from "@/features/conversationApi";
 import GroupAvatar from "@/components/GroupAvatar/GroupAvatar";
 
 const DirectMessages = () => {
@@ -21,6 +24,7 @@ const DirectMessages = () => {
   const messagesEndRef = useRef(null);
   const conversationId = searchParams.get("conversationId");
   const currentUser = useCurrentUser();
+  const [markRead] = useMarkReadMutation();
   const [conversations, setConversations] = useState([]);
   const { data, isSuccess } = useGetAllConversationQuery({
     refetchOnMountOrArgChange: true,
@@ -72,11 +76,11 @@ const DirectMessages = () => {
   }, [messages, selectedConversation]);
 
   useEffect(() => {
-    if (!conversations.length) return;
+    if (!conversations) return;
 
-    // Lưu các channel để unsubscribe sau này
     const channels = conversations.map((conv) => {
       const channel = socketClient.subscribe(`conversation-${conv.id}`);
+
       channel.bind("new-message", (newMessage) => {
         if (conv.id === selectedConversation?.id) {
           setMessages((prev) => {
@@ -110,24 +114,17 @@ const DirectMessages = () => {
         channel.unbind_all();
       });
     };
-  }, [conversations, selectedConversation?.id]);
+  }, [conversations, selectedConversation?.id, currentUser.id]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView();
   };
 
-  const markAsRead = (conversationId) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
-      )
-    );
-  };
-
-  const handleConversationSelect = (conversation) => {
+  const handleConversationSelect = async (conversation) => {
+    conversation.unreadCount = 0;
     setSelectedConversation(conversation);
     setSearchParams({ conversationId: conversation.id.toString() });
-    markAsRead(conversation.id);
+    await markRead(conversation.id);
   };
 
   const handleSendMessage = async () => {
@@ -184,7 +181,6 @@ const DirectMessages = () => {
       }
       return false;
     });
-    // console.log(filteredConversations);
 
     return (
       <div className={styles.container}>
@@ -261,7 +257,7 @@ const DirectMessages = () => {
                       </span>
                       {conversation.unreadCount > 0 && (
                         <span className={styles.unreadBadge}>
-                          {conversation.unreadCount || 1}
+                          {conversation.unreadCount}
                         </span>
                       )}
                     </div>

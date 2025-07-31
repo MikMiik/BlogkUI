@@ -32,6 +32,31 @@
     border-bottom: 1px solid $border-light;
     background: $bg-primary;
     border-radius: $radius-lg $radius-lg 0 0;
+    transition: background-color $transition-fast;
+
+    &.newMessageHeader {
+        background: $primary-500;
+        color: $text-white;
+
+        .name {
+            color: $text-white;
+        }
+
+        .status {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .menuButton,
+        .minimizeButton,
+        .closeButton {
+            color: $text-white;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: $text-white;
+            }
+        }
+    }
 }
 
 .userInfo {
