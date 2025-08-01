@@ -220,8 +220,6 @@ const ChatWindow = ({
   }
 
   if (isSuccess) {
-    console.log("Conversation data:", conversation);
-
     return (
       <div className={styles.chatWindow} {...props}>
         {/* Header */}

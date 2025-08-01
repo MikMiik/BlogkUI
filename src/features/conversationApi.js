@@ -5,6 +5,7 @@ export const conversationApi = baseApi.injectEndpoints({
     getAllConversation: builder.query({
       query: () => `conversations`,
       transformResponse: (response) => response.data,
+      providesTags: ["Conversation"],
     }),
     getSharedConversation: builder.query({
       query: (otherId) => `conversations/${otherId}`,
@@ -23,6 +24,7 @@ export const conversationApi = baseApi.injectEndpoints({
         body: data,
       }),
       transformResponse: (response) => response.data,
+      invalidatesTags: ["Conversation"],
     }),
     deleteConversation: builder.mutation({
       query: (conversationId) => ({
