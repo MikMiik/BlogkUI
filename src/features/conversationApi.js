@@ -16,6 +16,20 @@ export const conversationApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    createConversation: builder.mutation({
+      query: (data) => ({
+        url: `conversations`,
+        method: "POST",
+        body: data,
+      }),
+      transformResponse: (response) => response.data,
+    }),
+    deleteConversation: builder.mutation({
+      query: (conversationId) => ({
+        url: `conversations/${conversationId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -23,4 +37,6 @@ export const {
   useGetAllConversationQuery,
   useMarkReadMutation,
   useGetSharedConversationQuery,
+  useCreateConversationMutation,
+  useDeleteConversationMutation,
 } = conversationApi;

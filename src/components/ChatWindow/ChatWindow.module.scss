@@ -194,6 +194,22 @@
     }
 }
 
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    flex: 1;
+}
+
+.emptyMessage {
+    @include body-base;
+    color: $text-muted;
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+}
+
 .message {
     display: flex;
     max-width: 85%;

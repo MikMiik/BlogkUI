@@ -13,6 +13,7 @@ import { useCurrentUser } from "@/utils/useCurrentUser";
 import {
   useGetAllConversationQuery,
   useMarkReadMutation,
+  useDeleteConversationMutation,
 } from "@/features/conversationApi";
 import GroupAvatar from "@/components/GroupAvatar/GroupAvatar";
 
@@ -21,10 +22,14 @@ const DirectMessages = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const messagesEndRef = useRef(null);
+  const dropdownRefs = useRef({});
   const conversationId = searchParams.get("conversationId");
   const currentUser = useCurrentUser();
   const [markRead] = useMarkReadMutation();
+  const [deleteConversation] = useDeleteConversationMutation();
   const [conversations, setConversations] = useState([]);
   const { data, isSuccess } = useGetAllConversationQuery({
     refetchOnMountOrArgChange: true,
@@ -69,6 +74,22 @@ const DirectMessages = () => {
       setMessages(convMessages);
     }
   }, [convMessagesSuccess, convMessages]);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const clickedOutsideAnyDropdown = Object.values(
+        dropdownRefs.current
+      ).every((ref) => ref && !ref.contains(event.target));
+
+      if (clickedOutsideAnyDropdown) {
+        setShowDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -125,6 +146,35 @@ const DirectMessages = () => {
     setSelectedConversation(conversation);
     setSearchParams({ conversationId: conversation.id.toString() });
     await markRead(conversation.id);
+  };
+
+  const toggleDropdown = (conversationId) => {
+    setShowDropdown(showDropdown === conversationId ? null : conversationId);
+  };
+
+  const handleDeleteConfirm = async (conversationId) => {
+    try {
+      await deleteConversation(conversationId);
+
+      setConversations((prev) =>
+        prev.filter((conv) => conv.id !== conversationId)
+      );
+
+      // If the deleted conversation was selected, clear selection
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setSearchParams({});
+      }
+    } catch (error) {
+      console.error("Failed to delete conversation:", error);
+    } finally {
+      setShowDeleteConfirm(null);
+      setShowDropdown(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(null);
   };
 
   const handleSendMessage = async () => {
@@ -247,9 +297,59 @@ const DirectMessages = () => {
                           ? conversation.groupName
                           : conversation.participant?.name}
                       </span>
-                      <span className={styles.timestamp}>
-                        {formatTime(conversation.lastMessage?.createdAt)}
-                      </span>
+                      <div className={styles.headerRight}>
+                        {/* Actions Dropdown */}
+                        <div
+                          className={styles.actionsDropdown}
+                          ref={(el) =>
+                            (dropdownRefs.current[conversation.id] = el)
+                          }
+                        >
+                          <button
+                            className={styles.moreButton}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleDropdown(conversation.id);
+                            }}
+                            aria-expanded={showDropdown === conversation.id}
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                            >
+                              <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                            </svg>
+                          </button>
+
+                          {showDropdown === conversation.id && (
+                            <div className={styles.dropdown}>
+                              <button
+                                className={`${styles.dropdownItem} ${styles.deleteItem}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowDeleteConfirm(conversation.id);
+                                  setShowDropdown(null);
+                                }}
+                              >
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  fill="currentColor"
+                                >
+                                  <path d="M6.5 1h3a.5.5 0 01.5.5v1H6v-1a.5.5 0 01.5-.5zM11 2.5v-1A1.5 1.5 0 009.5 0h-3A1.5 1.5 0 005 1.5v1H2.506a.58.58 0 000 1.162H3.36l.776 9.162A1.5 1.5 0 005.63 14h4.741a1.5 1.5 0 001.494-1.339L12.64 3.5h.854a.58.58 0 000-1.162H11z" />
+                                </svg>
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <span className={styles.timestamp}>
+                          {formatTime(conversation.lastMessage?.createdAt)}
+                        </span>
+                      </div>
                     </div>
                     <div className={styles.lastMessage}>
                       <span className={styles.messageText}>
@@ -370,6 +470,32 @@ const DirectMessages = () => {
             )}
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className={styles.confirmOverlay}>
+            <div className={styles.confirmModal}>
+              <h3 className={styles.confirmTitle}>Delete Conversation</h3>
+              <p className={styles.confirmMessage}>
+                Are you sure you want to delete this conversation? This action
+                cannot be undone.
+              </p>
+              <div className={styles.confirmActions}>
+                <Button variant="ghost" size="sm" onClick={handleDeleteCancel}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => handleDeleteConfirm(showDeleteConfirm)}
+                  className={styles.deleteConfirmButton}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

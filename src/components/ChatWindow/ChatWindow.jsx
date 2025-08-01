@@ -5,6 +5,7 @@ import FallbackImage from "../FallbackImage/FallbackImage";
 import Button from "../Button/Button";
 import styles from "./ChatWindow.module.scss";
 import {
+  useCreateConversationMutation,
   useGetSharedConversationQuery,
   useMarkReadMutation,
 } from "@/features/conversationApi";
@@ -25,13 +26,17 @@ const ChatWindow = ({
   const [messages, setMessages] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasNewMessage, setHasNewMessage] = useState(false);
+
   const messagesEndRef = useRef(null);
   const menuRef = useRef(null);
+
   const { data: conversation, isSuccess } = useGetSharedConversationQuery(
-    user.id
+    user.id,
+    { refetchOnMountOrArgChange: true }
   );
   const [createMessage] = useCreateMessageMutation();
   const [markRead] = useMarkReadMutation();
+  const [createConversation] = useCreateConversationMutation();
   const me = useCurrentUser();
 
   useEffect(() => {
@@ -44,9 +49,20 @@ const ChatWindow = ({
     if (!conversation) return;
     const channel = socketClient.subscribe(`conversation-${conversation.id}`);
     channel.bind("new-message", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      // Set hasNewMessage to true when receiving a new message
-      setHasNewMessage(true);
+      setMessages((prevMessages) => {
+        // Check if message already exists to avoid duplicates
+        const messageExists = prevMessages.some(
+          (msg) => msg.id === newMessage.id
+        );
+        if (messageExists) {
+          return prevMessages;
+        }
+        return [...prevMessages, newMessage];
+      });
+
+      if (newMessage.userId !== me.id) {
+        setHasNewMessage(true);
+      }
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -54,7 +70,7 @@ const ChatWindow = ({
         });
       }, 100);
     });
-  }, [conversation]);
+  }, [conversation, me.id]);
 
   // Scroll to bottom when window opens or when new messages arrive
   useEffect(() => {
@@ -111,12 +127,6 @@ const ChatWindow = ({
       setHasNewMessage(false); // Reset new message indicator
     };
 
-    // Mark as read immediately when window opens
-    (async () => {
-      await markRead(conversation.id);
-      setHasNewMessage(false); // Reset new message indicator
-    })();
-
     // Listen for window click events
     window.addEventListener("click", handleWindowFocus);
 
@@ -140,11 +150,46 @@ const ChatWindow = ({
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
-    await createMessage({
-      content: message.trim(),
-      conversationId: conversation.id,
-    });
-    setMessage("");
+
+    let conversationId = conversation?.id;
+
+    // If this is the first message, create the conversation first
+    if (messages.length === 0 && !conversationId) {
+      try {
+        const newConversation = await createConversation({
+          name: user.name,
+          avatar: user.avatar,
+          otherId: user.id,
+        }).unwrap();
+
+        conversationId = newConversation.id;
+      } catch (error) {
+        console.error("Failed to create conversation:", error);
+        return;
+      }
+    }
+
+    // Create message after ensuring conversation exists
+    try {
+      const newMessage = await createMessage({
+        content: message.trim(),
+        conversationId,
+      }).unwrap();
+
+      // Add message to local state for both new and existing conversations
+      setMessages((prev) => {
+        const messageExists = prev.some((msg) => msg.id === newMessage.id);
+        if (messageExists) {
+          return prev;
+        }
+        return [...prev, newMessage];
+      });
+
+      setMessage("");
+      setHasNewMessage(false);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
   const handleOpenInMessages = () => {
@@ -173,7 +218,10 @@ const ChatWindow = ({
       </div>
     );
   }
+
   if (isSuccess) {
+    console.log("Conversation data:", conversation);
+
     return (
       <div className={styles.chatWindow} {...props}>
         {/* Header */}
@@ -268,21 +316,27 @@ const ChatWindow = ({
 
         {/* Messages */}
         <div className={styles.messages}>
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`${styles.message} ${
-                msg.userId === me.id ? styles.own : styles.other
-              }`}
-            >
-              <div className={styles.messageContent}>
-                <p className={styles.messageText}>{msg.content}</p>
-                <span className={styles.messageTime}>
-                  {formatTime(msg.createdAt)}
-                </span>
+          {messages.length > 0 ? (
+            messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`${styles.message} ${
+                  msg.userId === me.id ? styles.own : styles.other
+                }`}
+              >
+                <div className={styles.messageContent}>
+                  <p className={styles.messageText}>{msg.content}</p>
+                  <span className={styles.messageTime}>
+                    {formatTime(msg.createdAt)}
+                  </span>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className={styles.emptyState}>
+              <p className={styles.emptyMessage}>Start a conversation</p>
             </div>
-          ))}
+          )}
           <div ref={messagesEndRef} />
         </div>
 
