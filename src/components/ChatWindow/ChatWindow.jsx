@@ -60,7 +60,7 @@ const ChatWindow = ({
         return [...prevMessages, newMessage];
       });
 
-      if (newMessage.userId !== me.id) {
+      if (newMessage.userId !== me?.id) {
         setHasNewMessage(true);
       }
       setTimeout(() => {
@@ -70,7 +70,7 @@ const ChatWindow = ({
         });
       }, 100);
     });
-  }, [conversation, me.id]);
+  }, [conversation, me?.id]);
 
   // Scroll to bottom when window opens or when new messages arrive
   useEffect(() => {
@@ -319,7 +319,7 @@ const ChatWindow = ({
               <div
                 key={msg.id}
                 className={`${styles.message} ${
-                  msg.userId === me.id ? styles.own : styles.other
+                  msg.userId === me?.id ? styles.own : styles.other
                 }`}
               >
                 <div className={styles.messageContent}>
