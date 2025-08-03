@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Badge from "../Badge/Badge";
 import styles from "./NotificationDropdown.module.scss";
 import {
+  useDeleteNotificationMutation,
   useMarkAllNotificationsAsReadMutation,
   useMarkNotificationAsReadMutation,
 } from "@/features/notificationApi";
@@ -15,29 +16,32 @@ const NotificationDropdown = ({
   onToggle,
   onMarkAsRead,
   onMarkAllAsRead,
+  onDeleteNotification,
   className,
   ...props
 }) => {
   const [markingAsRead, setMarkingAsRead] = useState(new Set());
+  const [deletingNotifications, setDeletingNotifications] = useState(new Set());
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const notificationRefs = useRef([]);
   const [markNotificationAsRead] = useMarkNotificationAsReadMutation();
   const [markAllNotificationsAsRead] = useMarkAllNotificationsAsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
   // Focus management for accessibility
   useEffect(() => {
     if (isOpen && dropdownRef.current) {
-      // Focus first focusable element when opening
+      // Focus first focusable element when opening, but only if opened by user interaction
       const firstFocusable = dropdownRef.current.querySelector(
         'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
       );
       if (firstFocusable) {
-        firstFocusable.focus();
+        // Add a small delay to ensure smooth focus transition
+        setTimeout(() => {
+          firstFocusable.focus();
+        }, 50);
       }
-    } else if (!isOpen && triggerRef.current) {
-      // Return focus to trigger when closing
-      triggerRef.current.focus();
     }
   }, [isOpen]);
 
@@ -98,6 +102,32 @@ const NotificationDropdown = ({
       await onMarkAllAsRead();
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error);
+    }
+  };
+
+  const handleDeleteNotification = async (notificationId, event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (!onDeleteNotification || deletingNotifications.has(notificationId))
+      return;
+
+    setDeletingNotifications((prev) => new Set(prev).add(notificationId));
+
+    try {
+      // Call the parent handler to update state
+      await deleteNotification(notificationId).unwrap();
+      await onDeleteNotification(notificationId);
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    } finally {
+      setDeletingNotifications((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(notificationId);
+        return newSet;
+      });
     }
   };
 
@@ -273,20 +303,46 @@ const NotificationDropdown = ({
                       </time>
                     </div>
 
-                    {!notification.seenAt && (
+                    <div className={styles.itemActions}>
+                      {!notification.seenAt && (
+                        <button
+                          className={styles.markRead}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleMarkAsRead(notification.id);
+                          }}
+                          disabled={markingAsRead.has(notification.id)}
+                          title="Mark as read"
+                        >
+                          <div className={styles.unreadDot} />
+                        </button>
+                      )}
+
                       <button
-                        className={styles.markRead}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleMarkAsRead(notification.id);
-                        }}
-                        disabled={markingAsRead.has(notification.id)}
-                        title="Mark as read"
+                        className={styles.deleteButton}
+                        onClick={(e) =>
+                          handleDeleteNotification(notification.id, e)
+                        }
+                        disabled={deletingNotifications.has(notification.id)}
+                        title="Delete notification"
+                        aria-label="Delete notification"
                       >
-                        <div className={styles.unreadDot} />
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                       </button>
-                    )}
+                    </div>
                   </Link>
                 ))}
               </div>
@@ -323,6 +379,7 @@ NotificationDropdown.propTypes = {
   onToggle: PropTypes.func.isRequired,
   onMarkAsRead: PropTypes.func,
   onMarkAllAsRead: PropTypes.func,
+  onDeleteNotification: PropTypes.func,
   className: PropTypes.string,
 };
 

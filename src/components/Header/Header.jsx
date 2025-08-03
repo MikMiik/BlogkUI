@@ -149,6 +149,12 @@ const Header = () => {
     );
   };
 
+  const handleDeleteNotification = async (notificationId) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== notificationId)
+    );
+  };
+
   return (
     <header className={styles.header}>
       <div className="container">
@@ -183,6 +189,7 @@ const Header = () => {
                     onToggle={handleNotificationToggle}
                     onMarkAsRead={handleMarkAsRead}
                     onMarkAllAsRead={handleMarkAllAsRead}
+                    onDeleteNotification={handleDeleteNotification}
                   />
                 </div>
 

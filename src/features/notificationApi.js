@@ -14,10 +14,17 @@ export const notificationApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    deleteNotification: builder.mutation({
+      query: (id) => ({
+        url: `notifications/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
 export const {
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
+  useDeleteNotificationMutation,
 } = notificationApi;
