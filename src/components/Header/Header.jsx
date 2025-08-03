@@ -57,9 +57,7 @@ const Header = () => {
   const [notifications, setNotifications] = useState(
     currentUser?.notifications || []
   );
-  const unreadCount = notifications.filter(
-    (n) => !n.notification_user?.seenAt
-  ).length;
+  const unreadCount = notifications.filter((n) => !n.seenAt).length;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -135,10 +133,7 @@ const Header = () => {
         notification.id === notificationId
           ? {
               ...notification,
-              notification_user: {
-                ...notification.notification_user,
-                seenAt: true,
-              },
+              seenAt: true,
             }
           : notification
       )
@@ -147,7 +142,10 @@ const Header = () => {
 
   const handleMarkAllAsRead = async () => {
     setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, read: true }))
+      prev.map((notification) => ({
+        ...notification,
+        seenAt: true,
+      }))
     );
   };
 

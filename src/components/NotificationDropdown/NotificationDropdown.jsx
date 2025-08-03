@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Badge from "../Badge/Badge";
 import styles from "./NotificationDropdown.module.scss";
-import { useMarkNotificationAsReadMutation } from "@/features/notificationApi";
+import {
+  useMarkAllNotificationsAsReadMutation,
+  useMarkNotificationAsReadMutation,
+} from "@/features/notificationApi";
 
 const NotificationDropdown = ({
   notifications = [],
@@ -21,6 +24,7 @@ const NotificationDropdown = ({
   const triggerRef = useRef(null);
   const notificationRefs = useRef([]);
   const [markNotificationAsRead] = useMarkNotificationAsReadMutation();
+  const [markAllNotificationsAsRead] = useMarkAllNotificationsAsReadMutation();
   // Focus management for accessibility
   useEffect(() => {
     if (isOpen && dropdownRef.current) {
@@ -90,6 +94,7 @@ const NotificationDropdown = ({
     if (!onMarkAllAsRead) return;
 
     try {
+      await markAllNotificationsAsRead().unwrap();
       await onMarkAllAsRead();
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error);
@@ -251,9 +256,7 @@ const NotificationDropdown = ({
                     key={notification.id}
                     to={notification.link || "#"}
                     className={`${styles.item} ${
-                      !notification.notification_user?.seenAt
-                        ? styles.unread
-                        : ""
+                      !notification.seenAt ? styles.unread : ""
                     } ${getNotificationTypeColor(notification.type)}`}
                     onClick={() => handleMarkAsRead(notification.id)}
                   >
@@ -270,7 +273,7 @@ const NotificationDropdown = ({
                       </time>
                     </div>
 
-                    {!notification.notification_user?.seenAt && (
+                    {!notification.seenAt && (
                       <button
                         className={styles.markRead}
                         onClick={(e) => {

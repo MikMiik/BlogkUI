@@ -8,7 +8,16 @@ export const notificationApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    markAllNotificationsAsRead: builder.mutation({
+      query: () => ({
+        url: `notifications/mark-all-as-read`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const { useMarkNotificationAsReadMutation } = notificationApi;
+export const {
+  useMarkNotificationAsReadMutation,
+  useMarkAllNotificationsAsReadMutation,
+} = notificationApi;
