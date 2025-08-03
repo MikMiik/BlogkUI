@@ -23,7 +23,7 @@ const AuthorInfo = ({
     introduction,
     username,
     role,
-    avatar,
+    avatar = "",
     website,
     socials = {},
     postsCount,
@@ -125,7 +125,7 @@ const AuthorInfo = ({
         </div>
       )}
 
-      {showSocial && Object.keys(socials).length > 0 && (
+      {showSocial && socials && (
         <div className={styles.social}>
           <span className={styles.socialLabel}>Connect:</span>
           <div className={styles.socialLinks}>
@@ -210,11 +210,11 @@ const AuthorInfo = ({
 
 AuthorInfo.propTypes = {
   author: PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     username: PropTypes.string,
     role: PropTypes.string,
     introduction: PropTypes.string,
-    avatar: PropTypes.string.isRequired,
+    avatar: PropTypes.string,
     website: PropTypes.string,
     socials: PropTypes.shape({
       twitter: PropTypes.string,

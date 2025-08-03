@@ -8,6 +8,7 @@ import styles from "./Header.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/services/authService";
 import { removeCurrentUser } from "@/features/auth/authSlice";
+import socketClient from "@/utils/socketClient";
 
 const Header = () => {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -18,45 +19,47 @@ const Header = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
+  // const mockNotifications = [
+  //   {
+  //     id: 1,
+  //     type: "like",
+  //     message: 'Sarah Johnson liked your post "Advanced React Patterns"',
+  //     link: "/blog/advanced-react-patterns",
+  //     read: false,
+  //     createdAt: "2024-01-20T10:30:00Z",
+  //   },
+  //   {
+  //     id: 2,
+  //     type: "comment",
+  //     message: 'Mike Chen commented on your post "Building Scalable APIs"',
+  //     link: "/blog/building-scalable-apis",
+  //     read: false,
+  //     createdAt: "2024-01-20T09:15:00Z",
+  //   },
+  //   {
+  //     id: 3,
+  //     type: "follow",
+  //     message: "Emily Rodriguez started following you",
+  //     link: "/profile/emily-rodriguez",
+  //     read: true,
+  //     createdAt: "2024-01-19T16:45:00Z",
+  //   },
+  //   {
+  //     id: 4,
+  //     type: "like",
+  //     message: 'David Kim and 5 others liked your post "CSS Grid Guide"',
+  //     link: "/blog/css-grid-guide",
+  //     read: true,
+  //     createdAt: "2024-01-19T14:20:00Z",
+  //   },
+  // ];
 
-  // Mock notifications data
-  const mockNotifications = [
-    {
-      id: 1,
-      type: "like",
-      message: 'Sarah Johnson liked your post "Advanced React Patterns"',
-      link: "/blog/advanced-react-patterns",
-      read: false,
-      createdAt: "2024-01-20T10:30:00Z",
-    },
-    {
-      id: 2,
-      type: "comment",
-      message: 'Mike Chen commented on your post "Building Scalable APIs"',
-      link: "/blog/building-scalable-apis",
-      read: false,
-      createdAt: "2024-01-20T09:15:00Z",
-    },
-    {
-      id: 3,
-      type: "follow",
-      message: "Emily Rodriguez started following you",
-      link: "/profile/emily-rodriguez",
-      read: true,
-      createdAt: "2024-01-19T16:45:00Z",
-    },
-    {
-      id: 4,
-      type: "like",
-      message: 'David Kim and 5 others liked your post "CSS Grid Guide"',
-      link: "/blog/css-grid-guide",
-      read: true,
-      createdAt: "2024-01-19T14:20:00Z",
-    },
-  ];
-
-  const [notifications, setNotifications] = useState(mockNotifications);
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const [notifications, setNotifications] = useState(
+    currentUser?.notifications || []
+  );
+  const unreadCount = notifications.filter(
+    (n) => !n.notification_user?.seenAt
+  ).length;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -88,6 +91,23 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!notifications) return;
+    const channel = socketClient.subscribe(`notifications-${currentUser?.id}`);
+    channel.bind("new-notification", (newNotification) => {
+      setNotifications((prevNotifications) => {
+        // Check if notification already exists to avoid duplicates
+        const notificationExists = prevNotifications.some(
+          (n) => n.id === newNotification.id
+        );
+        if (notificationExists) {
+          return prevNotifications;
+        }
+        return [...prevNotifications, newNotification];
+      });
+    });
+  }, [currentUser?.id, notifications]);
+
   const handleLogout = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
     if (refreshToken) {
@@ -113,7 +133,13 @@ const Header = () => {
     setNotifications((prev) =>
       prev.map((notification) =>
         notification.id === notificationId
-          ? { ...notification, read: true }
+          ? {
+              ...notification,
+              notification_user: {
+                ...notification.notification_user,
+                seenAt: true,
+              },
+            }
           : notification
       )
     );

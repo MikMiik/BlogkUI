@@ -140,6 +140,7 @@ const CommentItem = ({
 
   return (
     <div
+      id={`comment-${id}`}
       className={`${styles.commentItem} ${className || ""}`}
       style={{
         "--comment-indent":

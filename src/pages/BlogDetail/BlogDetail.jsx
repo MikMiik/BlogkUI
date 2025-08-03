@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   BlogContent,
   AuthorInfo,
@@ -21,6 +21,7 @@ const BlogDetail = () => {
   const { slug } = useParams();
   const currentUser = useCurrentUser();
   const isAuthenticated = Boolean(currentUser);
+  const location = useLocation();
 
   // Like and bookmark states
 
@@ -51,6 +52,33 @@ const BlogDetail = () => {
       setIsBookmarked(post.isBookmarked);
     }
   }, [post]);
+
+  useEffect(() => {
+    if (!location.hash) return;
+
+    const id = location.hash.slice(1); // bỏ dấu "#"
+    // nếu nội dung comment load sau (ví dụ từ API), có thể đợi nó xuất hiện:
+    const scrollToElement = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        return true;
+      }
+      return false;
+    };
+
+    if (!scrollToElement()) {
+      // thử lại vài lần nếu phần tử chưa có (ví dụ đang fetch)
+      const interval = setInterval(() => {
+        if (scrollToElement()) {
+          clearInterval(interval);
+        }
+      }, 100); // kiểm tra mỗi 100ms
+
+      // sau một thời gian vẫn không thấy thì dừng
+      setTimeout(() => clearInterval(interval), 3000);
+    }
+  }, [location]);
   if (isLoadingPost) {
     return (
       <div className={styles.loadingContainer}>
@@ -69,6 +97,7 @@ const BlogDetail = () => {
       </div>
     );
   }
+
   if (isSuccessPost) {
     const handleLikePost = async () => {
       if (likingInProgress) return;
