@@ -245,12 +245,14 @@ const BlogDetail = () => {
 
         {/* Comments */}
         <div className={styles.contentSection}>
-          <CommentSection
-            postId={post.id}
-            count={commentsCount}
-            commentsData={comments}
-            isAuthenticated={isAuthenticated}
-          />
+          {post.author?.setting?.allowComments !== false && (
+            <CommentSection
+              postId={post.id}
+              count={commentsCount}
+              commentsData={comments}
+              isAuthenticated={isAuthenticated}
+            />
+          )}
         </div>
       </div>
     );

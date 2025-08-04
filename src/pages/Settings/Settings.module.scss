@@ -281,6 +281,25 @@
     }
 }
 
+// Two-Factor Input
+.twoFactorInput {
+    max-width: 120px;
+    text-align: center;
+    font-family: monospace;
+    font-size: $text-base;
+    font-weight: $font-semibold;
+    letter-spacing: 0.3em;
+    
+    &::placeholder {
+        color: $text-secondary;
+        opacity: 0.6;
+    }
+
+    @include tablet-down {
+        max-width: 150px;
+    }
+}
+
 // Password Form
 .passwordForm {
     display: flex;
