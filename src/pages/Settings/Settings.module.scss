@@ -324,6 +324,17 @@
     justify-content: space-between;
     border: 1px solid $success-200;
 }
+.error {
+    background-color: $error-50;
+    color: $error-700;
+    padding: $spacing-4;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid $error-200;
+}
 
 .messageClose {
     background: none;
@@ -342,6 +353,25 @@
 
     &:hover {
         background-color: $success-100;
+    }
+}
+.errorClose {
+    background: none;
+    border: none;
+    font-size: $text-lg;
+    color: $error-600;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-sm;
+    transition: all $transition-base;
+
+    &:hover {
+        background-color: $error-100;
     }
 }
 

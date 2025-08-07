@@ -33,6 +33,11 @@ export const resetPassword = async (data, token) => {
   return res;
 };
 
+export const changePassword = async (id, data) => {
+  const res = await httpRequest.post(`/auth/change-password/${id}`, data);
+  return res;
+};
+
 export const verifyResetToken = async (token) => {
   const res = await httpRequest.get(`/auth/verify-reset-token?token=${token}`);
   return res;

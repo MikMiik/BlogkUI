@@ -10,6 +10,8 @@ import {
   useGetSettingByUserIdQuery,
   useUpsertSettingMutation,
 } from "@/features/settingsApi";
+import changePasswordSchema from "@/schemas/changePasswordSchema";
+import { changePassword } from "@/services/authService";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const Settings = () => {
   const [activeSection, setActiveSection] = useState("account");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [upsertSetting] = useUpsertSettingMutation();
   const me = useCurrentUser();
   const { data, isSuccess } = useGetSettingByUserIdQuery(me.id, {
@@ -77,14 +80,31 @@ const Settings = () => {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (settings.newPassword !== settings.confirmPassword) {
-      setMessage("Passwords don't match");
+      setError("Passwords don't match");
+      setMessage("");
       return;
     }
-
+    const formData = {
+      currentPassword: settings.currentPassword,
+      newPassword: settings.newPassword,
+      confirmPassword: settings.confirmPassword,
+    };
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setMessage("Password updated successfully!");
+      const validatedData = await changePasswordSchema.validate(formData, {
+        abortEarly: false,
+      });
+      if (validatedData) {
+        const res = await changePassword(me.id, formData);
+
+        if (res.success) {
+          setMessage("Password updated successfully!");
+          setError("");
+        } else {
+          setError("Failed to update password: " + res.message);
+          setMessage("");
+        }
+      }
       setSettings((prev) => ({
         ...prev,
         currentPassword: "",
@@ -92,9 +112,17 @@ const Settings = () => {
         confirmPassword: "",
       }));
     } catch (error) {
-      setMessage("Failed to update password");
+      setError(
+        "Update failed: " + error.message || "Failed to update password"
+      );
+      setMessage("");
     } finally {
       setLoading(false);
+      window.scrollTo({
+        top: 100,
+        left: 0,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -111,8 +139,10 @@ const Settings = () => {
 
       await upsertSetting(settingsToSave).unwrap();
       setMessage("Settings saved successfully!");
+      setError("");
     } catch (error) {
-      setMessage("Failed to save settings");
+      setError("Failed to save settings");
+      setMessage("");
     } finally {
       setLoading(false);
     }
@@ -141,7 +171,8 @@ const Settings = () => {
 
       setMessage("Data exported successfully!");
     } catch (error) {
-      setMessage("Failed to export data");
+      setError("Failed to export data");
+      setMessage("");
     } finally {
       setLoading(false);
     }
@@ -512,12 +543,14 @@ const Settings = () => {
             </nav>
 
             <Card className={styles.mainContent}>
-              {message && (
-                <div className={styles.message}>
-                  {message}
+              {(message || error) && (
+                <div className={message ? styles.message : styles.error}>
+                  {message || error}
                   <button
                     onClick={() => setMessage("")}
-                    className={styles.messageClose}
+                    className={
+                      message ? styles.messageClose : styles.errorClose
+                    }
                   >
                     ×
                   </button>
