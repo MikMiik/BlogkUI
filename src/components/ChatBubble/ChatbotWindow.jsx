@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import FallbackImage from "../FallbackImage/FallbackImage";
 import Button from "../Button/Button";
@@ -6,14 +6,17 @@ import styles from "../ChatWindow/ChatWindow.module.scss";
 import {
   useSendMessageMutation,
   useGetConversationHistoryQuery,
-  useCreateSessionMutation,
+  useCreateNewConversationMutation,
 } from "../../features/chatbotApi";
 import socketClient from "../../utils/socketClient";
 
 const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [sessionId, setSessionId] = useState(null);
+  const [sessionId, setSessionId] = useState(() => {
+    // Get sessionId from localStorage on component init
+    return localStorage.getItem("chatbot-session-id") || null;
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -21,28 +24,74 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
   const menuRef = useRef(null);
 
   const [sendChatMessage, { isLoading: isSending }] = useSendMessageMutation();
-  const [createSession] = useCreateSessionMutation();
+  const [createNewConversation] = useCreateNewConversationMutation();
+
+  const handleCreateNewConversation = async () => {
+    try {
+      console.log("🔄 Starting to create new conversation...");
+      setIsMenuOpen(false); // Close menu immediately for better UX
+
+      // Clear any existing messages first
+      setMessages([]);
+
+      // Show loading state with dots animation
+      setMessages([
+        {
+          id: "loading-new-chat",
+          role: "assistant",
+          content: "Đang tạo đoạn chat mới",
+          createdAt: new Date().toISOString(),
+          isLoading: true,
+        },
+      ]);
+
+      console.log("📡 Calling createNewConversation API...");
+      const result = await createNewConversation().unwrap();
+      console.log("✅ API Response:", result);
+
+      // Update sessionId and clear messages
+      setSessionId(result.sessionId);
+      setMessages([]);
+
+      // Update localStorage with new sessionId
+      localStorage.setItem("chatbot-session-id", result.sessionId);
+
+      console.log("✅ New conversation created successfully:", result);
+    } catch (error) {
+      console.error("❌ Failed to create new conversation:", error);
+
+      // Show error message
+      setMessages([
+        {
+          id: "error-new-chat",
+          role: "assistant",
+          content: "Có lỗi xảy ra khi tạo đoạn chat mới. Vui lòng thử lại.",
+          createdAt: new Date().toISOString(),
+          isError: true,
+        },
+      ]);
+    }
+  };
 
   // Load conversation history when sessionId changes
   const { data: historyData } = useGetConversationHistoryQuery(sessionId, {
     skip: !sessionId,
   });
 
-  const initializeSession = useCallback(async () => {
-    try {
-      const result = await createSession().unwrap();
-      setSessionId(result.sessionId);
-    } catch (error) {
-      console.error("Failed to create session:", error);
-    }
-  }, [createSession]);
-
-  // Initialize session when component mounts
+  // Clear session on logout (listen for auth changes)
   useEffect(() => {
-    if (isOpen && !sessionId) {
-      initializeSession();
-    }
-  }, [isOpen, sessionId, initializeSession]);
+    const handleStorageChange = (e) => {
+      if (e.key === "token" && !e.newValue) {
+        // User logged out, clear chatbot session
+        setSessionId(null);
+        setMessages([]);
+        localStorage.removeItem("chatbot-session-id");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // Websocket for real-time updates
   useEffect(() => {
@@ -51,24 +100,16 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
     const channel = socketClient.subscribe(`chatbot-session-${sessionId}`);
 
     channel.bind("new-message", (data) => {
-      // Add both user message and bot response
-      const newMessages = [
-        {
-          id: Date.now(),
-          role: "user",
-          content: data.userMessage.content,
-          createdAt: data.timestamp,
-        },
-        {
-          id: Date.now() + 1,
-          role: "assistant",
-          content: data.botResponse.content,
-          createdAt: data.timestamp,
-          metadata: data.metadata,
-        },
-      ];
+      // Only add bot response (user message already added immediately)
+      const botMessage = {
+        id: Date.now(),
+        role: "assistant",
+        content: data.botResponse.content,
+        createdAt: data.timestamp,
+        metadata: data.metadata,
+      };
 
-      setMessages((prev) => [...prev, ...newMessages]);
+      setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     });
 
@@ -79,12 +120,13 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
 
   useEffect(() => {
     if (isOpen && messages.length > 0) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({
-          behavior: "smooth",
+      // Scroll instantly to bottom without any animation
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: "instant",
           block: "end",
         });
-      }, 100);
+      }
     }
   }, [isOpen, messages]);
 
@@ -103,16 +145,30 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
   // Load messages from history
   useEffect(() => {
     if (historyData?.history) {
+      console.log("Loading conversation history:", historyData.history);
       const formattedMessages = historyData.history.map((record, index) => ({
-        id: index,
+        id: record.id || Date.now() + index,
         role: record.role,
         content: record.content,
-        createdAt: new Date().toISOString(),
+        createdAt: record.createdAt || new Date().toISOString(),
         metadata: record.metadata,
       }));
       setMessages(formattedMessages);
+
+      // Immediately scroll to bottom without animation when loading history
+      if (isOpen && formattedMessages.length > 0) {
+        // Use requestAnimationFrame to ensure DOM is updated
+        requestAnimationFrame(() => {
+          if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({
+              behavior: "instant",
+              block: "end",
+            });
+          }
+        });
+      }
     }
-  }, [historyData]);
+  }, [historyData, isOpen]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -120,6 +176,15 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
 
     const messageContent = message.trim();
     setMessage("");
+
+    // Add user message immediately
+    const userMessage = {
+      id: Date.now(),
+      role: "user",
+      content: messageContent,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
 
     try {
@@ -132,12 +197,14 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
         },
       }).unwrap();
 
-      // Update sessionId if it changed (first message)
+      // Update sessionId if it changed (first message or new conversation)
       if (result.sessionId !== sessionId) {
         setSessionId(result.sessionId);
+        // Persist sessionId to localStorage
+        localStorage.setItem("chatbot-session-id", result.sessionId);
       }
 
-      // Messages will be added via websocket
+      // Bot response will be added via websocket
     } catch (error) {
       console.error("Failed to send message:", error);
       setIsTyping(false);
@@ -164,17 +231,97 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
   };
 
   const renderMessage = (msg) => {
+    // Validate message object
+    if (!msg || !msg.id) {
+      console.warn("Invalid message object:", msg);
+      return null;
+    }
+
     const isBot = msg.role === "assistant";
+    const isLoading = msg.isLoading;
+    const isError = msg.isError;
+
+    // Convert markdown to HTML and handle line breaks
+    const formatContent = (content) => {
+      // Handle undefined/null content
+      if (!content || typeof content !== "string") {
+        return content || "";
+      }
+
+      // Replace markdown patterns with HTML
+      let formattedContent = content
+        // Headers: ### text -> <h3>text</h3>, ## text -> <h2>text</h2>, # text -> <h1>text</h1>
+        .replace(
+          /^### (.*$)/gm,
+          '<h3 style="margin: 0.5em 0; font-size: 1.1em; font-weight: 600;">$1</h3>'
+        )
+        .replace(
+          /^## (.*$)/gm,
+          '<h2 style="margin: 0.6em 0; font-size: 1.2em; font-weight: 600;">$1</h2>'
+        )
+        .replace(
+          /^# (.*$)/gm,
+          '<h1 style="margin: 0.8em 0; font-size: 1.3em; font-weight: 600;">$1</h1>'
+        )
+
+        // Bold: **text** or __text__ -> <strong>text</strong>
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/__(.*?)__/g, "<strong>$1</strong>")
+
+        // Italic: *text* or _text_ -> <em>text</em>
+        .replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, "<em>$1</em>")
+        .replace(/(?<!_)_([^_]+?)_(?!_)/g, "<em>$1</em>")
+
+        // Code: `text` -> <code>text</code>
+        .replace(
+          /`(.*?)`/g,
+          '<code style="background: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px; font-family: monospace;">$1</code>'
+        )
+
+        // Lists: - item -> <li>item</li> (wrap in <ul> later)
+        .replace(/^- (.*$)/gm, '<li style="margin: 0.2em 0;">$1</li>')
+
+        // Line breaks: convert \n to <br>
+        .replace(/\n/g, "<br>");
+
+      // Wrap consecutive <li> elements in <ul>
+      formattedContent = formattedContent.replace(
+        /(<li[^>]*>.*?<\/li>(?:\s*<br>\s*<li[^>]*>.*?<\/li>)*)/g,
+        '<ul style="margin: 0.5em 0; padding-left: 1.2em;">$1</ul>'
+      );
+
+      // Remove <br> tags that are immediately before or after block elements
+      formattedContent = formattedContent
+        .replace(/<br>\s*(<h[1-6][^>]*>)/g, "$1")
+        .replace(/(<\/h[1-6]>)\s*<br>/g, "$1")
+        .replace(/<br>\s*(<ul[^>]*>)/g, "$1")
+        .replace(/(<\/ul>)\s*<br>/g, "$1");
+
+      return <span dangerouslySetInnerHTML={{ __html: formattedContent }} />;
+    };
 
     return (
       <div
         key={msg.id}
-        className={`${styles.message} ${isBot ? styles.other : styles.own}`}
+        className={`${styles.message} ${isBot ? styles.other : styles.own} ${
+          isError ? styles.error : ""
+        } ${isLoading ? styles.loading : ""}`}
       >
         <div className={styles.messageContent}>
-          <p className={styles.messageText}>{msg.content}</p>
+          {isLoading ? (
+            <div className={styles.loadingMessage}>
+              <div className={styles.loadingDots}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p className={styles.messageText}>{msg.content}</p>
+            </div>
+          ) : (
+            <p className={styles.messageText}>{formatContent(msg.content)}</p>
+          )}
           <span className={styles.messageTime}>
-            {formatTime(msg.createdAt)}
+            {formatTime(msg.createdAt || new Date().toISOString())}
           </span>
         </div>
       </div>
@@ -222,11 +369,7 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
               <div className={styles.menu}>
                 <button
                   className={styles.menuItem}
-                  onClick={() => {
-                    setMessages([]);
-                    setSessionId(null);
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={handleCreateNewConversation}
                 >
                   <svg
                     width="16"
@@ -269,14 +412,20 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
           </div>
         )}
 
-        {messages.map(renderMessage)}
+        {messages
+          .filter((msg) => msg && msg.id && msg.content !== undefined)
+          .map(renderMessage)}
 
         {isTyping && (
           <div className={`${styles.message} ${styles.other}`}>
             <div className={styles.messageContent}>
-              <p className={styles.messageText}>
-                <span className={styles.typing}>Đang trả lời...</span>
-              </p>
+              <div className={styles.typingIndicator}>
+                <div className={styles.typingDots}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
             </div>
           </div>
         )}

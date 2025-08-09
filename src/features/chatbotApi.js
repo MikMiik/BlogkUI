@@ -80,6 +80,46 @@ export const chatbotApi = baseApi.injectEndpoints({
       transformResponse: (response) => response.data,
     }),
 
+    // Conversation management
+    getUserConversations: builder.query({
+      query: ({ limit = 20, offset = 0, includeInactive = false } = {}) =>
+        `chat/conversations?limit=${limit}&offset=${offset}&includeInactive=${includeInactive}`,
+      transformResponse: (response) => response.data,
+    }),
+
+    createNewConversation: builder.mutation({
+      query: () => ({
+        url: "chat/conversations/new",
+        method: "POST",
+      }),
+      transformResponse: (response) => response.data,
+    }),
+
+    getActiveConversation: builder.query({
+      query: (sessionId = null) => ({
+        url: "chat/conversations/active",
+        headers: sessionId ? { "x-chatbot-session-id": sessionId } : {},
+      }),
+      transformResponse: (response) => response.data,
+    }),
+
+    updateConversationTitle: builder.mutation({
+      query: ({ sessionId, title }) => ({
+        url: `chat/conversations/${sessionId}/title`,
+        method: "PUT",
+        body: { title },
+      }),
+      transformResponse: (response) => response.data,
+    }),
+
+    deactivateConversation: builder.mutation({
+      query: (sessionId) => ({
+        url: `chat/conversations/${sessionId}`,
+        method: "DELETE",
+      }),
+      transformResponse: (response) => response.data,
+    }),
+
     // History management
     getConversationHistory: builder.query({
       query: (sessionId) => `chat/history/${sessionId}`,
@@ -105,6 +145,13 @@ export const {
   useGetSessionStatsQuery,
   useClearSessionMutation,
   useClearUserSessionsMutation,
+
+  // Conversation management
+  useGetUserConversationsQuery,
+  useCreateNewConversationMutation,
+  useGetActiveConversationQuery,
+  useUpdateConversationTitleMutation,
+  useDeactivateConversationMutation,
 
   // History
   useGetConversationHistoryQuery,

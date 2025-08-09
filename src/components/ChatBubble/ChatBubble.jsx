@@ -8,8 +8,8 @@ const ChatBubble = ({
   allowedPaths = ["/", "/blog", "/topics", "/posts"],
   user = {
     id: "support",
-    name: "Support",
-    avatar: null,
+    name: "Customer Support",
+    avatar: "https://cdn-icons-png.flaticon.com/512/3079/3079840.png",
     username: "support",
   },
   ...props
