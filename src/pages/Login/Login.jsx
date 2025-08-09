@@ -91,29 +91,37 @@ const Login = () => {
     const githubError = urlParams.get("error");
 
     if (githubSuccess === "github_login") {
-      const { accessToken, refreshToken } = getAuthTokensFromCookies();
+      // Retry logic for getting tokens from cookies
+      const retryGetTokens = (attempts = 0) => {
+        const { accessToken, refreshToken } = getAuthTokensFromCookies();
 
-      if (accessToken) {
-        localStorage.setItem("token", accessToken);
-        if (refreshToken) {
-          localStorage.setItem("refreshToken", refreshToken);
+        if (accessToken) {
+          localStorage.setItem("token", accessToken);
+          if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken);
+          }
+
+          // Clear cookies after saving to localStorage
+          clearAuthTokensFromCookies();
+
+          dispatch(getCurrentUser());
+
+          // Clear URL parameters and redirect
+          navigate(params.get("continue") || "/", { replace: true });
+          return;
+        } else if (attempts < 3) {
+          // Retry after 100ms if no tokens found and we haven't exceeded max attempts
+          setTimeout(() => retryGetTokens(attempts + 1), 100);
+        } else {
+          // If no tokens found after retries, show error
+          setErrors({
+            submit: "GitHub login failed - tokens not found in cookies",
+          });
+          navigate("/login", { replace: true });
         }
+      };
 
-        // Clear cookies after saving to localStorage
-        clearAuthTokensFromCookies();
-
-        dispatch(getCurrentUser());
-
-        // Clear URL parameters and redirect
-        navigate(params.get("continue") || "/", { replace: true });
-        return;
-      } else {
-        // If no tokens found in cookies, show error
-        setErrors({
-          submit: "GitHub login failed - tokens not found in cookies",
-        });
-        navigate("/login", { replace: true });
-      }
+      retryGetTokens();
     }
 
     if (githubError) {

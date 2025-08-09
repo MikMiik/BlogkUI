@@ -68,14 +68,6 @@ export const getAuthTokensFromCookies = () => {
   const accessToken = getCookie("accessToken");
   const refreshToken = getCookie("refreshToken");
 
-  // Debug logging for development
-  if (import.meta.env.DEV) {
-    console.log("Getting tokens from cookies:", {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-    });
-  }
-
   return {
     accessToken,
     refreshToken,
