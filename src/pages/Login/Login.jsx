@@ -11,9 +11,10 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "./Login.module.scss";
 
 import { Input, Button } from "@/components";
-import { login, verifyEmailToken } from "@/services/authService";
+import { googleLogin, login, verifyEmailToken } from "@/services/authService";
 import { getCurrentUser } from "@/features/auth/authSlice";
 import loginSchema from "@/schemas/loginSchema";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,6 +33,22 @@ const Login = () => {
   const [isTokenValid, setIsTokenValid] = useState(null);
 
   const token = searchParams.get("token");
+
+  const handleLoginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const res = await googleLogin(tokenResponse.access_token);
+      if (res.success) {
+        setErrors({});
+        localStorage.setItem("token", res.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.refreshToken || "");
+        dispatch(getCurrentUser());
+        navigate(params.get("continue") || "/");
+      } else {
+        setErrors({ submit: "Login with Google error" });
+      }
+    },
+    onError: () => console.log("Login Failed"),
+  });
 
   useEffect(() => {
     if (!token) return;
@@ -92,14 +109,14 @@ const Login = () => {
       });
       if (validatedData) {
         const res = await login(formData);
-        if (!res.success) {
-          setErrors({ submit: res.message || "Login error" });
-        } else {
+        if (res.success) {
           setErrors({});
           localStorage.setItem("token", res.data.accessToken);
           localStorage.setItem("refreshToken", res.data.refreshToken || "");
           dispatch(getCurrentUser());
           navigate(params.get("continue") || "/");
+        } else {
+          setErrors({ submit: res.message || "Login error" });
         }
       }
     } catch (err) {
@@ -200,7 +217,11 @@ const Login = () => {
         </div>
 
         <div className={styles.socialButtons}>
-          <button className={styles.socialButton} type="button">
+          <button
+            className={styles.socialButton}
+            type="button"
+            onClick={handleLoginWithGoogle}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path
                 fill="currentColor"

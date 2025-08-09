@@ -4,6 +4,7 @@ export { default as Input } from "./Input/Input";
 export { default as Card } from "./Card/Card";
 export { default as Badge } from "./Badge/Badge";
 export { default as ChatWindow } from "./ChatWindow/ChatWindow";
+export { default as ChatBubble } from "./ChatBubble/ChatBubble";
 export { default as Pagination } from "./Pagination/Pagination";
 export { default as PublishModal } from "./PublishModal/PublishModal";
 export { default as RichTextEditor } from "./RichTextEditor/RichTextEditor";

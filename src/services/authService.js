@@ -10,6 +10,11 @@ export const login = async (loginInfo) => {
   return res;
 };
 
+export const googleLogin = async (token) => {
+  const res = await httpRequest.post("/auth/google", { token });
+  return res;
+};
+
 export const logout = async (data) => {
   const res = await httpRequest.post("/auth/logout", data);
   return res;

@@ -1,0 +1,286 @@
+.chatBubble {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  outline: none;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+    
+    .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-10px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .bubbleIcon {
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .notificationDot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    background: #ff4757;
+    border-radius: 50%;
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+    
+    // Hide by default, show when there are new messages
+    display: none;
+    
+    &.show {
+      display: block;
+    }
+  }
+
+  .tooltip {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    transform: translateY(-5px);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 8px;
+    z-index: 1002;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      right: 20px;
+      transform: none;
+      border: 5px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+.chatWindowWrapper {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  z-index: 1001;
+  animation: slideUp 0.3s ease-out;
+
+  // Override ChatWindow styles with blue theme
+  :global(.chatWindow) {
+    border-radius: 16px !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    width: 380px !important;
+    height: 520px !important;
+    position: relative !important;
+    bottom: auto !important;
+    right: auto !important;
+    
+    // Header with blue gradient
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      color: white !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+      .name {
+        color: white !important;
+      }
+
+      .status {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+
+      .menuButton,
+      .minimizeButton,
+      .closeButton {
+        color: white !important;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+        }
+      }
+
+      .menu {
+        background: white !important;
+        border: 1px solid #e1e8ed !important;
+        color: #333 !important;
+
+        .menuItem {
+          color: #333 !important;
+
+          &:hover {
+            background: #f8f9fa !important;
+          }
+        }
+      }
+    }
+
+    // Messages with blue theme for own messages
+    .messages {
+      .message {
+        &.own {
+          .messageContent {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+          }
+        }
+
+        &.other {
+          .messageContent {
+            background: #f8f9fa !important;
+            border: 1px solid #e1e8ed !important;
+            color: #333 !important;
+          }
+        }
+      }
+    }
+
+    // Input form with blue theme
+    .inputForm {
+      background: white !important;
+      border-top: 1px solid #e1e8ed !important;
+
+      .input {
+        border: 1px solid #e1e8ed !important;
+
+        &:focus {
+          border-color: #667eea !important;
+          box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
+        }
+      }
+
+      .sendButton {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border: none !important;
+
+        &:hover:not(:disabled) {
+          transform: scale(1.05) !important;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        }
+
+        &:disabled {
+          opacity: 0.5 !important;
+          background: #e1e8ed !important;
+          transform: none !important;
+        }
+      }
+    }
+  }
+
+  // Minimized window with blue accent
+  :global(.minimizedWindow) {
+    background: white !important;
+    border: 1px solid #e1e8ed !important;
+    color: #333 !important;
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 100px !important;
+
+    &:hover {
+      border-color: #667eea !important;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2) !important;
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .chatBubble {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    
+    .bubbleIcon svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .chatWindowWrapper {
+    bottom: 90px;
+    right: 20px;
+    left: 20px;
+    width: auto;
+
+    :global(.chatWindow) {
+      width: 100% !important;
+      left: 0 !important;
+      right: 0 !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .chatWindowWrapper {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+
+    :global(.chatWindow) {
+      border-radius: 0 !important;
+      height: 100vh !important;
+      width: 100% !important;
+    }
+  }
+}
