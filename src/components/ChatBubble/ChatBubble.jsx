@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
-import MockedChatWindow from "./MockedChatWindow";
+import ChatbotWindow from "./ChatbotWindow";
 import styles from "./ChatBubble.module.scss";
 
 const ChatBubble = ({
@@ -61,7 +61,7 @@ const ChatBubble = ({
 
       {/* Chat Window */}
       <div className={styles.chatWindowWrapper}>
-        <MockedChatWindow
+        <ChatbotWindow
           user={user}
           isOpen={isOpen}
           onClose={handleClose}

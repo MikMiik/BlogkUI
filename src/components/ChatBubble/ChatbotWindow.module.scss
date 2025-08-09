@@ -1,0 +1,186 @@
+// Additional styles for Chatbot specific features
+.welcomeMessage {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  
+  h4 {
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+    
+    li {
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.botMessage {
+  .messageWrapper {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  
+  .messageContent {
+    background: #f1f3f4;
+    color: #333;
+  }
+}
+
+.userMessage {
+  .messageWrapper {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+  
+  .messageContent {
+    background: #0084ff;
+    color: white;
+  }
+}
+
+.systemMessage {
+  .messageWrapper {
+    justify-content: center;
+  }
+  
+  .messageContent {
+    background: #e3f2fd;
+    color: #1976d2;
+    font-style: italic;
+    max-width: 80%;
+    text-align: center;
+  }
+}
+
+.metadata {
+  font-size: 11px;
+  color: #999;
+  margin-top: 5px;
+  border-top: 1px solid #eee;
+  padding-top: 5px;
+  
+  small {
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+
+.messageActions {
+  margin-left: 10px;
+  
+  .feedbackBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.messageFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.typingIndicator {
+  .typingDots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    
+    span {
+      width: 6px;
+      height: 6px;
+      background: #999;
+      border-radius: 50%;
+      animation: typingBounce 1.4s infinite ease-in-out;
+      
+      &:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      
+      &:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+    }
+  }
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.feedbackModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  .feedbackContent {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    
+    h4 {
+      margin-bottom: 15px;
+    }
+    
+    p {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      border-left: 3px solid #0084ff;
+    }
+  }
+}
+
+.feedbackButtons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  
+  .positiveBtn {
+    background: #4caf50;
+    color: white;
+  }
+  
+  .negativeBtn {
+    background: #f44336;
+    color: white;
+  }
+}
+
+.headerStatus {
+  font-size: 12px;
+  color: #666;
+}

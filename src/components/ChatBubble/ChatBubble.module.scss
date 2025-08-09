@@ -96,7 +96,7 @@
   bottom: 100px;
   right: 24px;
   z-index: 1001;
-  animation: slideUp 0.3s ease-out;
+  animation: all 0.3s ease-out;
 
   // Override ChatWindow styles with blue theme
   :global(.chatWindow) {
@@ -232,11 +232,11 @@
 }
 
 @keyframes slideUp {
-  from {
+  0% {
     opacity: 0;
     transform: translateY(20px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
