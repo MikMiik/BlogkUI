@@ -5,7 +5,7 @@ import ChatbotWindow from "./ChatbotWindow";
 import styles from "./ChatBubble.module.scss";
 
 const ChatBubble = ({
-  allowedPaths = ["/", "/blog", "/topics", "/posts"],
+  allowedPaths = ["/", "/blog", "/topics", "/posts", "/contact"],
   user = {
     id: "support",
     name: "Customer Support",

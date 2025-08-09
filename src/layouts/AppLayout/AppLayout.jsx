@@ -12,7 +12,16 @@ const AppLayout = ({ children }) => {
       <main className={styles.main}>{children || <Outlet />}</main>
       <Footer />
       <ChatBubble
-        allowedPaths={["/", "/blog", "/topics", "/posts", "/topic"]}
+        allowedPaths={[
+          "/",
+          "/blog",
+          "/topics",
+          "/posts",
+          "/topic",
+          "/contact",
+          "/about",
+          "/profile",
+        ]}
       />
     </div>
   );

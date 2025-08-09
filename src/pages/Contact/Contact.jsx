@@ -46,7 +46,7 @@ const Contact = () => {
     {
       icon: "💬",
       title: "Live Chat",
-      value: "Available 9 AM - 6 PM EST",
+      value: "Customer Supporter",
       description: "Chat with our support team",
     },
     {
@@ -113,7 +113,7 @@ const Contact = () => {
         <section className={styles.contactInfo}>
           <div className={styles.contactGrid}>
             {contactInfo.map((info, index) => (
-              <div key={index} className={styles.contactCard}>
+              <div href="/google" key={index} className={styles.contactCard}>
                 <div className={styles.contactIcon}>{info.icon}</div>
                 <h3 className={styles.contactTitle}>{info.title}</h3>
                 <div className={styles.contactValue}>{info.value}</div>
