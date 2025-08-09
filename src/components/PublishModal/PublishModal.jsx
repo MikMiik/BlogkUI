@@ -57,10 +57,13 @@ const PublishModal = ({
   const handlePublish = () => {
     const publishData = {
       ...formData,
+      topics: selectedTopics, // Đảm bảo topics được truyền từ selectedTopics
       status: "published",
       isScheduled,
       publishedAt: isScheduled ? publishDate : new Date().toISOString(),
     };
+    console.log("PublishModal - publishData:", publishData);
+    console.log("PublishModal - selectedTopics:", selectedTopics);
     onPublish(publishData);
   };
 
@@ -175,19 +178,33 @@ const PublishModal = ({
             <h3 className={styles.sectionTitle}>Topics</h3>
 
             <div className={styles.topicsInput}>
-              <input
-                type="text"
-                placeholder="Add topics..."
-                value={topicInput}
-                onChange={(e) => setTopicInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && topicInput.trim()) {
-                    e.preventDefault();
-                    handleAddTopic(topicInput.trim());
-                  }
-                }}
-                className={styles.topicInput}
-              />
+              <div className={styles.inputWithButton}>
+                <input
+                  type="text"
+                  placeholder="Add topics..."
+                  value={topicInput}
+                  onChange={(e) => setTopicInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && topicInput.trim()) {
+                      e.preventDefault();
+                      handleAddTopic(topicInput.trim());
+                    }
+                  }}
+                  className={styles.topicInput}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (topicInput.trim()) {
+                      handleAddTopic(topicInput.trim());
+                    }
+                  }}
+                  className={styles.addTopicButton}
+                  disabled={!topicInput.trim()}
+                >
+                  Add
+                </button>
+              </div>
 
               <div className={styles.topicSuggestions}>
                 {topicInput &&
