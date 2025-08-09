@@ -28,6 +28,8 @@ const DirectMessages = lazy(() =>
   import("../pages/DirectMessages/DirectMessages")
 );
 const Settings = lazy(() => import("../pages/Settings/Settings"));
+const About = lazy(() => import("../pages/About/About"));
+const Contact = lazy(() => import("../pages/Contact/Contact"));
 const Login = lazy(() => import("../pages/Login/Login"));
 const Register = lazy(() => import("../pages/Register/Register"));
 const ForgotPassword = lazy(() =>
@@ -47,6 +49,8 @@ const AppRoutes = () => {
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Home />} />
             <Route path="verified" element={<VerifiedEmail />}></Route>
+            <Route path="about" element={<About />} />
+            <Route path="contact" element={<Contact />} />
             <Route path="topics" element={<TopicsListing />} />
             <Route path="topics/:slug" element={<Topic />} />
             <Route path="blog/:slug" element={<BlogDetail />} />

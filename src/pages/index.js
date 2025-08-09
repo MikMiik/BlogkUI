@@ -15,3 +15,5 @@ export { default as ForgotPassword } from "./ForgotPassword/ForgotPassword";
 export { default as ResetPassword } from "./ResetPassword/ResetPassword";
 export { default as NotFound } from "./NotFound/NotFound";
 export { default as VerifiedEmail } from "./VerifiedEmail/VerifiedEmail";
+export { default as About } from "./About/About";
+export { default as Contact } from "./Contact/Contact";
