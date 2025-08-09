@@ -15,6 +15,10 @@ import { googleLogin, login, verifyEmailToken } from "@/services/authService";
 import { getCurrentUser } from "@/features/auth/authSlice";
 import loginSchema from "@/schemas/loginSchema";
 import { useGoogleLogin } from "@react-oauth/google";
+import {
+  getAuthTokensFromCookies,
+  clearAuthTokensFromCookies,
+} from "@/utils/cookieUtils";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -50,6 +54,15 @@ const Login = () => {
     onError: () => console.log("Login Failed"),
   });
 
+  const handleLoginWithGithub = () => {
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${
+      import.meta.env.VITE_APP_GITHUB_CLIENT_ID
+    }&redirect_uri=${encodeURIComponent(
+      import.meta.env.VITE_APP_GITHUB_REDIRECT_URI
+    )}&scope=user`;
+    window.location.href = githubAuthUrl;
+  };
+
   useEffect(() => {
     if (!token) return;
     const verifyToken = async () => {
@@ -70,6 +83,47 @@ const Login = () => {
 
     verifyToken();
   }, [token, dispatch]);
+
+  // Handle GitHub login success from cookies
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const githubSuccess = urlParams.get("success");
+    const githubError = urlParams.get("error");
+
+    if (githubSuccess === "github_login") {
+      const { accessToken, refreshToken } = getAuthTokensFromCookies();
+
+      if (accessToken) {
+        localStorage.setItem("token", accessToken);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
+
+        // Clear cookies after saving to localStorage
+        clearAuthTokensFromCookies();
+
+        dispatch(getCurrentUser());
+
+        // Clear URL parameters
+        navigate(params.get("continue") || "/", { replace: true });
+        return;
+      }
+    }
+
+    if (githubError) {
+      const errorMessages = {
+        no_code: "GitHub authorization failed - no code received",
+        auth_failed: "GitHub authentication failed",
+        server_error: "Server error during GitHub login",
+      };
+      setErrors({
+        submit: errorMessages[githubError] || "GitHub login failed",
+      });
+
+      // Clear URL parameters
+      navigate("/login", { replace: true });
+    }
+  }, [dispatch, navigate, params]);
 
   useEffect(() => {
     const localToken = localStorage.getItem("token");
@@ -243,7 +297,11 @@ const Login = () => {
             Continue with Google
           </button>
 
-          <button className={styles.socialButton} type="button">
+          <button
+            className={styles.socialButton}
+            type="button"
+            onClick={handleLoginWithGithub}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
