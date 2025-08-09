@@ -104,9 +104,15 @@ const Login = () => {
 
         dispatch(getCurrentUser());
 
-        // Clear URL parameters
+        // Clear URL parameters and redirect
         navigate(params.get("continue") || "/", { replace: true });
         return;
+      } else {
+        // If no tokens found in cookies, show error
+        setErrors({
+          submit: "GitHub login failed - tokens not found in cookies",
+        });
+        navigate("/login", { replace: true });
       }
     }
 

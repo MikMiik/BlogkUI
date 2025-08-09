@@ -65,9 +65,20 @@ export const deleteCookie = (name, options = {}) => {
  * @returns {object} - Object containing accessToken and refreshToken
  */
 export const getAuthTokensFromCookies = () => {
+  const accessToken = getCookie("accessToken");
+  const refreshToken = getCookie("refreshToken");
+
+  // Debug logging for development
+  if (import.meta.env.DEV) {
+    console.log("Getting tokens from cookies:", {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+    });
+  }
+
   return {
-    accessToken: getCookie("accessToken"),
-    refreshToken: getCookie("refreshToken"),
+    accessToken,
+    refreshToken,
   };
 };
 
@@ -77,4 +88,9 @@ export const getAuthTokensFromCookies = () => {
 export const clearAuthTokensFromCookies = () => {
   deleteCookie("accessToken", { path: "/" });
   deleteCookie("refreshToken", { path: "/" });
+
+  // Debug logging for development
+  if (import.meta.env.DEV) {
+    console.log("Cleared auth tokens from cookies");
+  }
 };
