@@ -8,7 +8,6 @@ import {
   useGetConversationHistoryQuery,
   useCreateNewConversationMutation,
 } from "../../features/chatbotApi";
-import socketClient from "../../utils/socketClient";
 
 const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
   const [message, setMessage] = useState("");
@@ -92,31 +91,6 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-
-  // Websocket for real-time updates
-  useEffect(() => {
-    if (!sessionId) return;
-
-    const channel = socketClient.subscribe(`chatbot-session-${sessionId}`);
-
-    channel.bind("new-message", (data) => {
-      // Only add bot response (user message already added immediately)
-      const botMessage = {
-        id: Date.now(),
-        role: "assistant",
-        content: data.botResponse.content,
-        createdAt: data.timestamp,
-        metadata: data.metadata,
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
-      setIsTyping(false);
-    });
-
-    return () => {
-      socketClient.unsubscribe(`chatbot-session-${sessionId}`);
-    };
-  }, [sessionId]);
 
   useEffect(() => {
     if (isOpen && messages.length > 0) {
@@ -204,7 +178,17 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
         localStorage.setItem("chatbot-session-id", result.sessionId);
       }
 
-      // Bot response will be added via websocket
+      // Add bot response directly from API result
+      const botMessage = {
+        id: Date.now() + 1, // Ensure unique ID
+        role: "assistant",
+        content: result.response,
+        createdAt: new Date().toISOString(),
+        metadata: result.metadata,
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+      setIsTyping(false);
     } catch (error) {
       console.error("Failed to send message:", error);
       setIsTyping(false);
@@ -213,7 +197,7 @@ const ChatbotWindow = ({ user, isOpen = false, onClose }) => {
       setMessages((prev) => [
         ...prev,
         {
-          id: Date.now(),
+          id: Date.now() + 1,
           role: "assistant",
           content: "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.",
           createdAt: new Date().toISOString(),
