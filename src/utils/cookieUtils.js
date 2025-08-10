@@ -1,4 +1,7 @@
-// Cookie utility functions for handling authentication tokens
+// Cookie utility functions for handling authentication tokens using react-cookies
+import { Cookies } from "react-cookies";
+
+const cookies = new Cookies();
 
 /**
  * Get cookie value by name
@@ -6,10 +9,7 @@
  * @returns {string|null} - Cookie value or null if not found
  */
 export const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-  return null;
+  return cookies.get(name) || null;
 };
 
 /**
@@ -19,33 +19,10 @@ export const getCookie = (name) => {
  * @param {object} options - Cookie options
  */
 export const setCookie = (name, value, options = {}) => {
-  let cookieString = `${name}=${value}`;
-
-  if (options.expires) {
-    cookieString += `; expires=${options.expires.toUTCString()}`;
-  }
-
-  if (options.maxAge) {
-    cookieString += `; max-age=${options.maxAge}`;
-  }
-
-  if (options.path) {
-    cookieString += `; path=${options.path}`;
-  }
-
-  if (options.domain) {
-    cookieString += `; domain=${options.domain}`;
-  }
-
-  if (options.secure) {
-    cookieString += `; secure`;
-  }
-
-  if (options.sameSite) {
-    cookieString += `; samesite=${options.sameSite}`;
-  }
-
-  document.cookie = cookieString;
+  cookies.set(name, value, {
+    path: "/",
+    ...options,
+  });
 };
 
 /**
@@ -54,9 +31,9 @@ export const setCookie = (name, value, options = {}) => {
  * @param {object} options - Cookie options (path, domain)
  */
 export const deleteCookie = (name, options = {}) => {
-  setCookie(name, "", {
+  cookies.remove(name, {
+    path: "/",
     ...options,
-    expires: new Date(0),
   });
 };
 
@@ -65,8 +42,19 @@ export const deleteCookie = (name, options = {}) => {
  * @returns {object} - Object containing accessToken and refreshToken
  */
 export const getAuthTokensFromCookies = () => {
+  // Debug: log all cookies
+  console.log("All cookies:", cookies.getAll());
+
   const accessToken = getCookie("accessToken");
   const refreshToken = getCookie("refreshToken");
+
+  // Debug logging
+  console.log("Getting tokens from cookies:", {
+    hasAccessToken: !!accessToken,
+    hasRefreshToken: !!refreshToken,
+    accessTokenLength: accessToken ? accessToken.length : 0,
+    refreshTokenLength: refreshToken ? refreshToken.length : 0,
+  });
 
   return {
     accessToken,
@@ -82,7 +70,5 @@ export const clearAuthTokensFromCookies = () => {
   deleteCookie("refreshToken", { path: "/" });
 
   // Debug logging for development
-  if (import.meta.env.DEV) {
-    console.log("Cleared auth tokens from cookies");
-  }
+  console.log("Cleared auth tokens from cookies");
 };
