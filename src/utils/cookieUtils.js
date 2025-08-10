@@ -1,5 +1,5 @@
-// Cookie utility functions for handling authentication tokens using react-cookies
-import { Cookies } from "react-cookies";
+// Cookie utility functions for handling authentication tokens using react-cookie
+import { Cookies } from "react-cookie";
 
 const cookies = new Cookies();
 

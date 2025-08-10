@@ -94,6 +94,8 @@ const Login = () => {
       // Retry logic for getting tokens from cookies
       const retryGetTokens = (attempts = 0) => {
         const { accessToken, refreshToken } = getAuthTokensFromCookies();
+        console.log("accessToken:", accessToken);
+        console.log("refreshToken:", refreshToken);
 
         if (accessToken) {
           localStorage.setItem("token", accessToken);
